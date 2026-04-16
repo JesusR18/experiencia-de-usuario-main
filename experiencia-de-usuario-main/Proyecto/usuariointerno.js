@@ -850,21 +850,57 @@ const SERVICIO_LABELS = {
 
 /** Inicia el listener en tiempo real de Firestore */
 function iniciarListenerSolicitudes() {
-  if (unsubscribeSols) return; // ya activo
+  if (unsubscribeSols) return;
+
+  const cont = document.getElementById('lista-solicitudes');
+
+  const handleSnap = snap => {
+    todasSolicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    actualizarBadgeSols();
+
+    const statusEl = document.getElementById('sols-firestore-status');
+    if (statusEl) {
+      const total = todasSolicitudes.length;
+      statusEl.innerHTML =
+        '<span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>' +
+        ' Firestore en tiempo real · ' + total + ' solicitud' + (total !== 1 ? 'es' : '') + ' guardada' + (total !== 1 ? 's' : '');
+      statusEl.className = 'text-xs mt-1 flex items-center gap-1 text-green-600';
+    }
+
+    const sec = document.getElementById('sec-solicitudes');
+    if (sec && sec.classList.contains('active')) {
+      renderSolicitudes(todasSolicitudes);
+    }
+  };
+
+  const handleErr = err => {
+    console.error('Error listener solicitudes:', err);
+    // Si falla orderBy (índice faltante), reintentar sin ordenamiento
+    if (err.code === 'failed-precondition' || err.code === 'unimplemented') {
+      unsubscribeSols = db.collection(COL_SOLS)
+        .onSnapshot(handleSnap, err2 => {
+          console.error('Error crítico Firestore solicitudes:', err2);
+          if (cont) cont.innerHTML =
+            `<div class="empty-state">
+               <p class="text-red-400 font-semibold">Error al conectar con Firestore.</p>
+               <p class="text-xs text-gray-400 mt-1">${err2.message}</p>
+             </div>`;
+        });
+    } else {
+      if (cont) cont.innerHTML =
+        `<div class="empty-state">
+           <p class="text-red-400 font-semibold">Error al cargar solicitudes.</p>
+           <p class="text-xs text-gray-400 mt-1">${err.message}</p>
+           <button class="btn-secondary mt-3 text-xs" onclick="unsubscribeSols=null;iniciarListenerSolicitudes()">
+             Reintentar
+           </button>
+         </div>`;
+    }
+  };
+
   unsubscribeSols = db.collection(COL_SOLS)
     .orderBy('created_at', 'desc')
-    .onSnapshot(snap => {
-      todasSolicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      actualizarBadgeSols();
-
-      // Si la sección está visible, re-renderizar
-      const sec = document.getElementById('sec-solicitudes');
-      if (sec && sec.classList.contains('active')) {
-        renderSolicitudes(todasSolicitudes);
-      }
-    }, err => {
-      console.error('Error listener solicitudes:', err);
-    });
+    .onSnapshot(handleSnap, handleErr);
 }
 
 function actualizarBadgeSols() {
@@ -1171,10 +1207,17 @@ function imprimirCotizacion(id) {
 function eliminarSolicitud(id) {
   confirmar(
     '¿Eliminar solicitud?',
-    'Se eliminará permanentemente del registro.',
+    'Se eliminará de Firestore y desaparecerá de la página automáticamente.',
     async () => {
-      await db.collection(COL_SOLS).doc(id).delete();
-      showToast('Solicitud eliminada.');
+      try {
+        await db.collection(COL_SOLS).doc(id).delete();
+        showToast('Solicitud eliminada de Firestore.');
+        // onSnapshot actualiza la lista automáticamente (viceversa también funciona:
+        // si alguien borra desde Firebase Console, desaparece aquí al instante)
+      } catch (err) {
+        console.error(err);
+        showToast('Error al eliminar: ' + err.message, 'error');
+      }
     }
   );
 }

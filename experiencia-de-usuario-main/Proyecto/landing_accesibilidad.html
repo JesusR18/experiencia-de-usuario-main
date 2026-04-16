@@ -1103,13 +1103,14 @@ async function enviarFormulario(e) {
   };
 
   try {
-    await db.collection(COL).add(data);
-    status.textContent = '✅ Mensaje enviado correctamente. Te contactaremos en menos de 24 horas.';
+    const docRef = await db.collection(COL).add(data);
+    console.log('Solicitud guardada en Firestore con ID:', docRef.id);
+    status.textContent = '✅ Solicitud registrada correctamente. Te contactaremos en menos de 24 horas.';
     status.className = 'success';
     e.target.reset();
   } catch (err) {
-    console.error(err);
-    status.textContent = '❌ Error al enviar. Escríbenos directamente a lenguajedeseniasmx29@gmail.com';
+    console.error('Error Firestore:', err.code, err.message);
+    status.textContent = '❌ Error al guardar (' + (err.code || err.message) + '). Escríbenos a lenguajedeseniasmx29@gmail.com';
     status.className = 'error';
   } finally {
     btn.disabled = false;
