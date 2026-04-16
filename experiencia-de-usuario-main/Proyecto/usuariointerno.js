@@ -1058,7 +1058,7 @@ Quedamos a sus órdenes para cualquier aclaración.
 
 Atentamente,
 Mis Manos Hablarán
-lenguajeDeSeñasMx@gmail.com`;
+lenguajedeseniasmx29@gmail.com`;
 
   const asunto = encodeURIComponent(`Cotización ${c.numero || ''} — Mis Manos Hablarán`);
   const body   = encodeURIComponent(cuerpo);
@@ -1108,7 +1108,7 @@ function imprimirCotizacion(id) {
     '@media print{body{margin:20px}}' +
     '</style></head><body>' +
     '<h1>Mis Manos Hablaran</h1>' +
-    '<p class="sub">Servicios de Lengua de Senas Mexicana - lenguajeDeSeñasMx@gmail.com</p>' +
+    '<p class="sub">Servicios de Lengua de Senas Mexicana - lenguajedeseniasmx29@gmail.com</p>' +
     '<div class="grid">' +
     '<div class="field"><label>Numero de cotizacion</label><span>' + (c.numero || '—') + '</span></div>' +
     '<div class="field"><label>Cliente</label><span>' + (c.cliente_nombre || '—') + '</span></div>' +
@@ -1128,7 +1128,7 @@ function imprimirCotizacion(id) {
     '<td style="text-align:right">' + fmt(c.total) + '</td>' +
     '</tr></tfoot></table>' +
     '<p style="font-size:11px;color:#94a3b8;">* Precios en MXN - IVA no incluido</p>' +
-    '<div class="footer">Mis Manos Hablaran - lenguajeDeSeñasMx@gmail.com - (222) 862-2800</div>' +
+    '<div class="footer">Mis Manos Hablaran - lenguajedeseniasmx29@gmail.com - (222) 862-2800</div>' +
     '</body></html>';
 
   const win = window.open('', '_blank');
