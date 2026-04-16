@@ -364,11 +364,36 @@ app.post('/webhook', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════════════
-//  HEALTH CHECK (Railway lo usa para saber que el server vive)
+//  HEALTH CHECK
 // ══════════════════════════════════════════════════════════════════════
 
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'Bot WhatsApp Mis Manos Hablarán' });
+});
+
+// ── Diagnóstico: verifica token y número ──────────────────────────────
+app.get('/debug', async (req, res) => {
+  try {
+    // 1. Verificar token
+    const tokenCheck = await axios.get(
+      `https://graph.facebook.com/v22.0/me?access_token=${TOKEN}`
+    );
+    // 2. Verificar phone number ID
+    const phoneCheck = await axios.get(
+      `https://graph.facebook.com/v22.0/${PHONE_ID}`,
+      { headers: { Authorization: `Bearer ${TOKEN}` } }
+    );
+    res.json({
+      token_ok: true,
+      token_info: tokenCheck.data,
+      phone_info: phoneCheck.data
+    });
+  } catch (err) {
+    res.json({
+      token_ok: false,
+      error: err.response?.data || err.message
+    });
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════════
