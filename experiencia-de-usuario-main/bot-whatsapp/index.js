@@ -47,12 +47,17 @@ const SERVICIOS = [
 // ══════════════════════════════════════════════════════════════════════
 
 async function enviarMensaje(to, body) {
-  await axios.post(API_URL, {
-    messaging_product: 'whatsapp',
-    to,
-    type: 'text',
-    text: { body }
-  }, { headers: { Authorization: `Bearer ${TOKEN}` } });
+  try {
+    await axios.post(API_URL, {
+      messaging_product: 'whatsapp',
+      to,
+      type: 'text',
+      text: { body, preview_url: false }
+    }, { headers: { Authorization: `Bearer ${TOKEN}` } });
+  } catch (err) {
+    console.error('Error Meta API (texto):', JSON.stringify(err.response?.data || err.message));
+    throw err;
+  }
 }
 
 // Menú de texto numerado (compatible con apps en modo desarrollo)
