@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nivel 2 - Primeras Palabras | Mis Manos Hablarán</title>
+    <link rel="icon" type="image/png" href="Letras/logo_sin_fondo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        /* ESTILOS DEL FONDO ANIMADO Y ESTRUCTURA */
+        
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            /* Usamos Poppins */
+            overflow-x: hidden;
+        }
+        
+        .bg {
+            animation: slide 3s ease-in-out infinite alternate;
+            background-image: linear-gradient(-60deg, rgb(251, 255, 25) 50%, rgb(15, 12, 217) 50%);
+            bottom: 0;
+            left: -50%;
+            opacity: .5;
+            position: fixed;
+            right: -50%;
+            top: 0;
+            z-index: -1;
+        }
+        
+        .bg2 {
+            animation-direction: alternate-reverse;
+            animation-duration: 4s;
+        }
+        
+        .bg3 {
+            animation-duration: 5s;
+        }
+        
+        @keyframes slide {
+            0% {
+                transform: translateX(-25%);
+            }
+            100% {
+                transform: translateX(25%);
+            }
+        }
+        /* Ajustamos max-width de video para que sea responsivo sin CSS fijo */
+        /* Eliminamos max-width: 240px; del CSS para que Tailwind lo maneje mejor */
+        /* ESTILO PARA LA BARRA CIRCULAR DE PROGRESO (Mantenemos el tamaño fijo) */
+        
+        .circular-progress {
+            width: 150px;
+            /* Reducido a 150px para mejor encaje */
+            height: 150px;
+            /* Reducido a 150px para mejor encaje */
+            border-radius: 50%;
+            background: radial-gradient(closest-side, white 79%, transparent 80% 100%, white 0), conic-gradient(var(--progress-color) calc(var(--progress-value) * 1%), #ccc 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .circular-progress span {
+            z-index: 5;
+        }
+        /* Se elimina .contenido-principal CSS para usar clases de Tailwind */
+        
+        .fade {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-gray-800 flex flex-col min-h-screen">
+    <a href="pagina_inicio.html" class="fixed top-4 left-4 z-50 bg-white bg-opacity-30 backdrop-blur-sm text-white text-base font-semibold px-4 py-2 rounded-lg shadow-lg hover:bg-opacity-50 transition duration-300">
+        🏠 INICIO
+    </a>
+
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+
+    <header class="text-center mb-6 mt-16 md:mt-6 z-10 px-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">
+            Nivel 2: Aprende tus Primeras Palabras 🤟
+        </h1>
+        <p class="text-base md:text-lg text-white">
+            Aprende señas de <strong>Saludos</strong>, <strong>Familia</strong> y <strong>Comida</strong>, y refuerza tu aprendizaje con un quiz.
+        </p>
+    </header>
+
+    <div class="flex flex-col lg:flex-row justify-center items-center lg:items-start gap-6 lg:gap-12 w-full p-4 md:p-8 flex-grow z-10">
+
+        <img id="imagenLateral" src="Letras/logo_sin_fondo.png" alt="Imagen decorativa de lengua de señas" class="hidden lg:block max-w-xs h-auto mt-10 rounded-xl opacity-80" />
+
+        <main class="bg-white shadow-xl rounded-2xl p-6 md:p-8 w-full max-w-sm md:max-w-md text-center border border-yellow-100 flex-shrink-0">
+
+            <div id="leccion" class="fade">
+                <h2 class="text-xl md:text-2xl font-semibold text-yellow-700 mb-6 md:mb-10"></h2>
+
+                <video id="videoLeccion" controls class="mx-auto mb-6 rounded-xl shadow-lg max-w-full w-[240px] h-auto"></video>
+
+                <p class="text-gray-700 mb-8 md:mb-10 mt-6 text-sm md:text-base"></p>
+
+                <div class="flex justify-center space-x-4">
+                    <button id="btnRegresar" class="bg-gray-400 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl hover:bg-gray-500 transition duration-200 text-sm md:text-base" style="display: none;">
+                        ← Regresar
+                    </button>
+                    <button id="btnSiguiente" class="bg-yellow-500 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl hover:bg-yellow-600 transition duration-200 text-sm md:text-base">
+                        Siguiente →
+                    </button>
+                </div>
+            </div>
+
+            <div id="quiz" style="display: none;">
+            </div>
+
+            <div id="resultado" class="mt-6 text-sm md:text-base"></div>
+
+            <button id="btnContinuar" class="bg-green-500 text-white font-semibold px-5 py-3 mt-6 rounded-xl hover:bg-green-600 transition duration-200 w-full text-base md:text-lg" style="display: none;">
+                Continuar al siguiente nivel →
+            </button>
+        </main>
+
+        <aside class="flex flex-col items-center pt-4 lg:pt-10 text-center">
+            <h3 class="text-xl font-bold text-white mb-4">Progreso</h3>
+            <div id="progressContainer">
+                <div id="progressCircle" class="circular-progress" style="--progress-value: 0; --progress-color: #f59e0b;">
+                    <span id="progressText" class="text-xl font-bold text-gray-700">1/24</span>
+                </div>
+            </div>
+            <p class="mt-4 text-sm text-white">Palabra actual / Quiz</p>
+        </aside>
+    </div>
+
+    <footer class="mt-10 mb-4 text-sm text-white text-center">
+        <p>© 2025 Mis Manos Hablarán | Proyecto Educativo Inclusivo</p>
+    </footer>
+
+    <script type="module" src="nivel2.js"></script>
+</body>
+
+</html>

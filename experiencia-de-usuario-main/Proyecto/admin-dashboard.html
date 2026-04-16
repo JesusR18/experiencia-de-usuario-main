@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="Letras/logo_sin_fondo.png">
+    <title>Admin - Mis Manos Hablarán</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            color: #1e293b;
+        }
+        
+        #auth-loading {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            font-size: 18px;
+            gap: 16px;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(255, 255, 255, .3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: .3s;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, .05);
+            color: white;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, .1);
+            color: white;
+            border-left: 4px solid #667eea;
+        }
+        
+        .content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+            margin-bottom: 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+        }
+        
+        .stat-card-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #4f46e5;
+            margin-top: 5px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .table-header {
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .user-table th {
+            padding: 15px 25px;
+            text-align: left;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .user-table td {
+            padding: 15px 25px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .2s;
+            margin-right: 4px;
+        }
+        
+        .btn:hover {
+            opacity: .85;
+        }
+        
+        .btn-view {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-refresh {
+            background: #10b981;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* ── MURO GRID ── */
+        
+        .muro-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 25px;
+        }
+        
+        .muro-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #fafafa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+        }
+        
+        .muro-card-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .muro-card-profesor {
+            font-weight: 700;
+            color: #1d4ed8;
+            font-size: 14px;
+        }
+        
+        .muro-card-fecha {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        
+        .muro-card-body {
+            padding: 14px 16px;
+        }
+        
+        .muro-card-texto {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .muro-card-img {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+        }
+        /* ── YOUTUBE EMBED IN ADMIN MURO ── */
+        
+        .muro-yt-wrap {
+            position: relative;
+            width: 100%;
+            background: #000;
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .muro-yt-wrap iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .muro-card-footer {
+            padding: 10px 16px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chip-type {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        
+        .btn-delete-muro {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s;
+        }
+        
+        .btn-delete-muro:hover {
+            background: #fca5a5;
+        }
+        
+        .muro-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+            grid-column: 1 / -1;
+        }
+        
+        .muro-empty .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        /* ── MODAL ── */
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: .3s;
+        }
+        
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 450px;
+            text-align: center;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1e293b;
+            color: white;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all .3s;
+            z-index: 9000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        /* ── STATS MURO ── */
+        
+        .muro-stats-bar {
+            display: flex;
+            gap: 12px;
+            padding: 0 25px 0;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .muro-stat-pill {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="auth-loading">
+        <div class="spinner"></div>
+        <span>Cargando panel...</span>
+    </div>
+
+    <div id="dashboard-content" style="display: none; width: 100%;">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>🖐️ Admin LSM</h2>
+            </div>
+            <div style="padding: 20px; color: #94a3b8; font-size: 12px; font-weight: bold; letter-spacing: 1px;">GESTIÓN</div>
+            <div id="btn-nav-usuarios" class="nav-item active">👥 Usuarios</div>
+            <div id="btn-nav-publicaciones" class="nav-item">🕒 Pubs. Pendientes <span id="badge-solicitudes" style="display:none;background:#ef4444;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;">0</span></div>
+            <div id="btn-nav-muro" class="nav-item">🌐 Ver Muro</div>
+            <div id="logout-btn" style="padding: 15px 25px; margin-top: auto; color: #f87171; cursor: pointer; font-weight: bold; font-size: 14px;">🚪 Cerrar Sesión</div>
+        </nav>
+
+        <main class="content">
+            <!-- SECCIÓN USUARIOS -->
+            <div id="section-usuarios">
+                <div class="header">
+                    <h1>Dashboard de Control</h1>
+                    <p>Monitoreo de progreso de los estudiantes.</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p style="color:#64748b; font-size:14px;">Total Alumnos</p>
+                        <div id="stat-total-users" class="stat-card-value">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <p style="color:#64748b; font-size:14px;">Nivel Promedio</p>
+                        <div id="stat-avg-level" class="stat-card-value">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <p style="color:#64748b; font-size:14px;">Graduados</p>
+                        <div id="stat-completed" class="stat-card-value">0</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Lista de Estudiantes</h3>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <input type="text" id="admin-search" style="padding:10px; border:1px solid #e2e8f0; border-radius:8px;" placeholder="Buscar...">
+                            <button id="refresh-btn" class="btn btn-refresh">🔄 Actualizar</button>
+                        </div>
+                    </div>
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Alumno</th>
+                                <th>Correo</th>
+                                <th>Nivel Real</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list"></tbody>
+                    </table>
+                </div>
+            </div>
+<div class="table-container" style="margin-top: 40px;">
+    <div class="table-header">
+        <h3>Historial de Accesos (Logs)</h3>
+        <button class="btn btn-refresh" onclick="loadLoginLogs()">🔄 Actualizar Logs</button>
+    </div>
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Usuario / Rol</th>
+                <th>Correo</th>
+                <th>Fecha y Hora</th>
+                <th>ID Sesión</th>
+            </tr>
+        </thead>
+        <tbody id="logs-list">
+            <tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">Cargando historial...</td></tr>
+        </tbody>
+    </table>
+</div>
+            <!-- SECCIÓN PUBLICACIONES PENDIENTES -->
+            <div id="section-publicaciones" style="display:none;">
+                <div class="header">
+                    <h1>Moderación de Muro</h1>
+                    <p>Revisa y aprueba el contenido de los profesores.</p>
+                </div>
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Solicitudes Pendientes</h3>
+                        <button class="btn btn-refresh" onclick="cargarRevisionesMuro()">🔄 Actualizar</button>
+                    </div>
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Profesor</th>
+                                <th>Contenido</th>
+                                <th>Tipo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-revision-muro"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECCIÓN MURO -->
+            <div id="section-muro" style="display:none;">
+                <div class="header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <h1>Muro de la Comunidad</h1>
+                        <p>Publicaciones aprobadas visibles para los estudiantes.</p>
+                    </div>
+                    <button class="btn btn-refresh" onclick="cargarMuro()">🔄 Actualizar</button>
+                </div>
+                <div class="muro-stats-bar" id="muro-stats-bar"></div>
+                <div id="muro-grid" class="muro-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALES -->
+    <div id="view-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-user-name"></h3>
+            <div id="levels-details-container"></div>
+            <button class="btn btn-view" style="width:100%; margin-top:20px;" onclick="closeModals()">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>¿Eliminar usuario?</h3>
+            <p style="color:#64748b; margin-top:8px; font-size:14px;">Esta acción eliminará al usuario del sistema.</p>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-view" style="flex:1" onclick="closeModals()">No</button>
+                <button id="confirm-delete-btn" class="btn btn-danger" style="flex:1">Sí, eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-muro-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="font-size:2.5rem; margin-bottom:12px;">🗑️</div>
+            <h3>¿Eliminar esta publicación?</h3>
+            <p style="color:#64748b; margin-top:8px; font-size:14px;">Se eliminará del muro y no podrá recuperarse.</p>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-view" style="flex:1" onclick="closeModals()">Cancelar</button>
+                <button id="confirm-delete-muro-btn" class="btn btn-reject" style="flex:1">Sí, eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="email-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="email-target-user" style="margin-bottom: 15px;">Enviar aviso</h3>
+            <p style="color: #64748b; margin-bottom: 20px;">Selecciona el tipo de recordatorio:</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-refresh" onclick="enviarAvisoPorTipo('inactividad')">📧 Aviso por Inactividad</button>
+                <button class="btn btn-view" onclick="enviarAvisoPorTipo('progreso')">📈 Motivación de Progreso</button>
+                <button class="btn btn-danger" style="background:#f1f5f9; color:#475569;" onclick="closeModals()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="module" src="admin.js"></script>
+
+    <script>
+        // ══════════════════════════════════════════════════════════════
+        // admin-dashboard.html — Script inline
+        // Navegación, modales y helpers. La lógica real está en admin.js
+        // ══════════════════════════════════════════════════════════════
+
+        // ── NAVEGACIÓN ────────────────────────────────────────────────
+        const sections = {
+            usuarios:     'section-usuarios',
+            publicaciones:'section-publicaciones',
+            muro:         'section-muro'
+        };
+        const navBtns = {
+            usuarios:     'btn-nav-usuarios',
+            publicaciones:'btn-nav-publicaciones',
+            muro:         'btn-nav-muro'
+        };
+
+        function switchSection(key) {
+            Object.keys(sections).forEach(k => {
+                document.getElementById(sections[k]).style.display = k === key ? 'block' : 'none';
+                document.getElementById(navBtns[k]).classList.toggle('active', k === key);
+            });
+        }
+
+        document.getElementById('btn-nav-usuarios').addEventListener('click', () => {
+            switchSection('usuarios');
+        });
+        document.getElementById('btn-nav-publicaciones').addEventListener('click', () => {
+            switchSection('publicaciones');
+            // cargarRevisionesMuro viene de admin.js
+            if (typeof cargarRevisionesMuro === 'function') cargarRevisionesMuro();
+        });
+        document.getElementById('btn-nav-muro').addEventListener('click', () => {
+            switchSection('muro');
+            if (typeof cargarMuro === 'function') cargarMuro();
+        });
+
+        window.closeModals = function() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        };
+
+        // ── YOUTUBE HELPER (usado por admin.js) ───────────────────────
+        function getYouTubeEmbedUrl(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
+            ];
+            for (const p of patterns) {
+                const m = url.match(p);
+                if (m) return `https://www.youtube.com/embed/${m[1]}`;
+            }
+            return null;
+        }
+
+        // ── Actualizar badge cada 15 segundos ────────────────────────
+        function actualizarBadge() {
+            try {
+                const todas = JSON.parse(localStorage.getItem('solicitudes_muro') || '[]');
+                const count = todas.filter(s => s.estado === 'pendiente').length;
+                const badge = document.getElementById('badge-solicitudes');
+                if (badge) {
+                    badge.textContent   = count > 0 ? count : '';
+                    badge.style.display = count > 0 ? 'inline-block' : 'none';
+                }
+            } catch(e) {}
+        }
+
+        // Llamar al badge al cargar y periódicamente
+        actualizarBadge();
+        setInterval(actualizarBadge, 15000);
+
+        // También escuchar cambios de storage (si el creador está en otra pestaña)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'solicitudes_muro') {
+                actualizarBadge();
+                // Si la sección de publicaciones está visible, recargar
+                const secPubs = document.getElementById('section-publicaciones');
+                if (secPubs && secPubs.style.display !== 'none') {
+                    if (typeof cargarRevisionesMuro === 'function') cargarRevisionesMuro();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

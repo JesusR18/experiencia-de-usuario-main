@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.logo-text {
+    color: #3b5998;
+    font-weight: 800;
+}
+
+
+/* Estilo para la barra de progreso */
+
+.progress-bar-container {
+    background-color: #e0e7ff;
+    border-radius: 9999px;
+    height: 1.5rem;
+}
+
+.progress-bar {
+    background-color: #4f46e5;
+    border-radius: 9999px;
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+}

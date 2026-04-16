@@ -1,0 +1,417 @@
+:root {
+    --primary-color: #7e9ddf;
+    /* Azul oscuro (para texto principal) */
+    --secondary-color: #2c3e50;
+    /* Azul muy oscuro (para inputs) */
+    --card-background: rgba(233, 198, 198, 0.2);
+    /* Fondo de la tarjeta transparente */
+    --border-color: rgba(255, 255, 255, 0.4);
+    --button-background: linear-gradient(135deg, #6a85b6 0%, #bac8e0 100%);
+    --shadow-light: rgba(255, 255, 255, 0.4);
+    --shadow-dark: rgba(235, 215, 215, 0.4);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    /* CLAVE: Asegura que el cuerpo ocupe la altura completa */
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    /* Mantiene la tarjeta centrada horizontalmente (como en tu imagen) */
+    align-items: center;
+    min-height: 100vh;
+    color: white;
+    /* Aseguramos que el texto principal (letras) sea blanco para contrastar con el fondo oscuro */
+    /* INICIO DE LAS PROPIEDADES DEL FONDO ANIMADO */
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    /* FIN DE LAS PROPIEDADES DEL FONDO ANIMADO */
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+/* ------------------- CONTENEDOR PRINCIPAL ------------------- */
+
+.background-container {
+    padding: 20px;
+    width: 100%;
+    max-width: 1200px;
+    /* Limita el ancho del contenedor principal para que los logos no se separen demasiado */
+    display: flex;
+    justify-content: center;
+    /* Centra el wrapper que contiene el formulario y los logos */
+    align-items: center;
+    height: 100vh;
+}
+
+
+/* AÑADIDO: Asegura que el wrapper intermedio se centre y ocupe el 100% de la altura */
+
+.right-align-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-content-wrapper {
+    /* Esta es la clave para la disposición horizontal: logo | form | logo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 50px;
+    /* Espacio entre los logos y el formulario */
+}
+
+.side-logo {
+    max-width: 500px;
+    /* Tamaño máximo para los logos laterales */
+    height: auto;
+    object-fit: contain;
+    /* Ajustes para la visibilidad en el fondo */
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+    /* Pequeña sombra para que resalte */
+}
+
+
+/* Opcional: Ocultar los logos en pantallas muy pequeñas si no hay espacio */
+
+@media (max-width: 768px) {
+    .side-logo {
+        display: none;
+    }
+    .main-content-wrapper {
+        gap: 0;
+        /* Eliminar el gap cuando los logos no están visibles */
+    }
+}
+
+
+/* Elimina el espacio que ocupaban las letras individuales si no lo necesitas */
+
+.space-y-2 {
+    display: none;
+    /* Oculta completamente el div que contenía las letras */
+}
+
+.auth-card {
+    width: 350px;
+    padding: 40px 30px;
+    border-radius: 20px;
+    /* ACLARAMOS EL FONDO DE LA TARJETA */
+    --card-background: rgba(84, 123, 155, 0.5);
+    /* Aumentamos la opacidad y claridad */
+    background: var(--card-background);
+    backdrop-filter: blur(10px);
+    box-shadow: 5px 5px 15px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
+    text-align: center;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.hidden {
+    display: none;
+}
+
+
+/* ------------------- CABECERA Y AVATAR ------------------- */
+
+h2 {
+    color: black;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.avatar-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    border: 5px solid var(--card-background);
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    /* Icono de usuario dentro del círculo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em;
+    line-height: 1;
+}
+
+.avatar-icon::after {
+    content: "👤";
+    /* Icono de usuario simple */
+    color: rgb(22, 28, 32);
+}
+
+
+/* ------------------- FORMULARIO Y ENTRADAS ------------------- */
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background: var(--secondary-color);
+    margin-bottom: 20px;
+    border-radius: 8px;
+    padding: 0 10px;
+    height: 50px;
+}
+
+.input-group .icon {
+    margin-right: 10px;
+    color: white;
+}
+
+input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    color: white;
+    padding: 10px 0;
+    outline: none;
+    font-size: 1em;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+
+/* ------------------- ACCIONES Y BOTONES ------------------- */
+
+.actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+}
+
+.actions-row a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.actions-row a:hover {
+    text-decoration: underline;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+    background: var(--button-background);
+    color: var(--secondary-color);
+    transition: background 0.3s, transform 0.1s;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(209, 193, 193, 0.2);
+}
+
+.auth-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ------------------- PIE DE PÁGINA Y MENSAJES ------------------- */
+
+.switch-link {
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: var(--secondary-color);
+}
+
+.switch-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.message-text {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: red;
+    /* Para mensajes de error */
+}
+
+
+/* Estilos específicos para registro */
+
+#register-form .actions-row {
+    margin-bottom: 20px;
+}
+
+.contenedor-imagenes {
+    /* 1. Convierte el contenedor en un Flex Container */
+    display: flex;
+    /* 2. Opcional: Centra las imágenes horizontalmente */
+    justify-content: center;
+    /* 3. Opcional: Evita que se salten de línea si no caben */
+    flex-wrap: nowrap;
+    width: auto;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+
+/* ------------------- ESTILOS PARA NIVEL 1 ------------------- */
+
+.nivel-container {
+    width: 90%;
+    max-width: 900px;
+    background: var(--card-background);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 5px 5px 15px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
+    text-align: center;
+    margin: 40px auto;
+}
+
+.nivel-header h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+#usuarioNombre {
+    font-size: 1.1em;
+    color: white;
+    margin-bottom: 20px;
+}
+
+
+/* Lección */
+
+.leccion h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.leccion p {
+    margin-bottom: 20px;
+    color: white;
+}
+
+
+/* Galería del abecedario */
+
+.galeria-abecedario {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    margin-bottom: 30px;
+}
+
+.galeria-abecedario div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.galeria-abecedario div img {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid var(--border-color);
+}
+
+.galeria-abecedario div:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+
+/* Botones */
+
+#btnIniciarQuiz,
+#btnSiguiente,
+#btnVolverDashboard,
+#opciones button {
+    padding: 12px 25px;
+    margin: 10px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    background: var(--button-background);
+    color: var(--secondary-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#btnIniciarQuiz:hover,
+#btnSiguiente:hover,
+#btnVolverDashboard:hover,
+#opciones button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Quiz */
+
+.quiz #opciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+
+/* Resultado */
+
+.resultado h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.resultado p {
+    margin-bottom: 20px;
+    color: white;
+}
+
+canvas {
+    display: block;
+}

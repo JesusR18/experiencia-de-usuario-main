@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Manos Hablarán - Acceso</title>
+    <link rel="icon" type="image/png" href="Letras/logo_sin_fondo.png">
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        #password-rules {
+            margin-top: 5px;
+            padding: 0;
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 5px;
+        }
+
+        #password-rules li {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem; 
+            color: #ef4444; 
+            transition: color 0.3s ease;
+        }
+
+        #password-rules li.valid {
+            color: #10b981; 
+        }   
+
+        .auth-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .avatar-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #bfdbfe;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            border: 4px solid #3b82f6;
+        }
+
+        .avatar-icon-register {
+            width: 64px;
+            height: 64px;
+            font-size: 2.5rem;
+            background-color: #bfdbfe;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid #3b82f6;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            background-color: #f1f5f9; 
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group .icon {
+            margin-right: 10px;
+            font-size: 1.25rem;
+            color: #3b82f6;
+        }
+
+        .input-group input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #111827;
+            font-size: 16px;
+        }
+
+        .input-group:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #3b82f6;
+            color: white;
+            font-weight: bold;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .auth-button:hover { background-color: #2563eb; }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+
+        .switch-link a { color: #1e40af; font-weight: bold; }
+
+        .message-text { text-align: center; margin-top: 1rem; font-weight: 600; }
+
+        .side-logo { display: none; max-width: 250px; height: auto; opacity: 0.8; align-self: center; }
+
+        @media (min-width: 1024px) { .side-logo { display: block; } }
+
+        .toggle-eye { cursor: pointer; margin-left: 10px; }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; justify-content: center; z-index: 2000;
+        }
+        .modal-box {
+            background: white; border-radius: 0.75rem; padding: 2rem;
+            width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        .modal-box h3 { font-size: 1.25rem; font-weight: 700; color: #1e40af; margin-bottom: 0.5rem; text-align: center; }
+        .modal-box p { font-size: 0.875rem; color: #6b7280; text-align: center; margin-bottom: 1.25rem; }
+        .modal-cancel-btn {
+            width: 100%; padding: 0.65rem; background-color: #e5e7eb; color: #374151;
+            font-weight: bold; border-radius: 0.5rem; margin-top: 0.75rem; transition: background-color 0.3s;
+        }
+        .forgot-link {
+            display: block; text-align: right; font-size: 0.8rem; color: #1e40af;
+            font-weight: 600; margin-top: -0.5rem; margin-bottom: 0.75rem; cursor: pointer;
+        }
+        .forgot-link:hover { text-decoration: underline; }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-gray-100" style="padding-top:70px;">
+
+    <header class="fixed top-0 left-0 w-full text-white shadow-lg" 
+            style="background: linear-gradient(to right, yellow,  #2563eb); z-index: 1030; height: 70px;">
+        <div class="w-full h-full flex items-center justify-between px-4 md:px-8">
+            <div class="flex items-center md:ms-24 gap-3">
+                <img src="Letras/logo.jpg" alt="Logo Mis Manos Hablarán" class="h-[45px] w-auto rounded-full border-2 border-white object-cover">
+                <a class="navbar-brand text-white fw-bold md:ms-24 text-xl md:text-2xl" href="introduccion_usuario.html" style="text-decoration: none;">
+                    Mis Manos Hablarán
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-5xl flex justify-center items-center">
+            <div class="w-full flex flex-col lg:flex-row justify-center items-center lg:space-x-12">
+                <img src="Letras/logo_sin_fondo.png" class="side-logo hidden lg:block">
+
+                <div id="login-view" class="auth-card bg-white bg-opacity-90 p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-sm">
+                    <h2>INICIO DE SESIÓN</h2>
+                    <div class="avatar-icon"></div>
+                    <form id="login-form">
+                        <div class="input-group">
+                            <span class="icon">👤</span>
+                            <input type="text" id="login-email" placeholder="Correo o Usuario" required>
+                        </div>
+                        <div class="input-group">
+                            <span class="icon">🔒</span>
+                            <input type="password" id="login-password" placeholder="Contraseña" required>
+                            <span class="icon toggle-eye" id="toggle-login-password">👁️</span>
+                        </div>
+                        <a class="forgot-link" id="open-forgot-modal">¿Olvidaste tu contraseña?</a>
+                        <button type="submit" class="auth-button">INICIAR SESIÓN</button>
+                    </form>
+                    <p class="switch-link">
+                        ¿No tienes cuenta? <a href="#" id="show-register">Regístrate aquí</a>
+                    </p>
+                    <p id="login-message" class="message-text"></p>
+                </div>
+
+                <div id="register-view" class="auth-card bg-white bg-opacity-90 p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-sm hidden">
+                    <h2>REGISTRO</h2>
+                    <div class="avatar-icon-register">📝</div>
+                    <form id="register-form">
+                        <div class="input-group">
+                            <span class="icon">✏️</span>
+                            <input type="text" id="register-username" placeholder="Usuario" required>
+                        </div>
+                        <div class="input-group">
+                            <span class="icon">✉️</span>
+                            <input type="email" id="register-email" placeholder="Correo" required>
+                        </div>
+                        <div class="input-group">
+                            <span class="icon">🔒</span>
+                            <input type="password" id="register-password" placeholder="Contraseña" required>
+                            <span class="icon toggle-eye" id="toggle-register-password">👁️</span>
+                        </div>
+                        <ul id="password-rules">
+                            <li id="rule-length">❌ Mínimo 8 caracteres</li>
+                            <li id="rule-uppercase">❌ Una mayúscula</li>
+                            <li id="rule-number">❌ Un número</li>
+                            <li id="rule-special">❌ Un carácter especial</li>
+                        </ul>
+                        <button type="submit" class="auth-button">REGISTRARSE</button>
+                    </form>
+                    <p class="switch-link">
+                        ¿Ya tienes cuenta? <a href="#" id="show-login">Iniciar Sesión</a>
+                    </p>
+                    <p id="register-message" class="message-text"></p>
+                </div>
+
+                <img src="Letras/logo_sin_fondo.png" class="side-logo hidden lg:block">
+            </div>
+        </div>
+    </main>
+
+    <div id="forgot-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>🔑 Recuperar Contraseña</h3>
+            <p>Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+            <div class="input-group">
+                <span class="icon">✉️</span>
+                <input type="email" id="forgot-email" placeholder="Tu correo registrado">
+            </div>
+            <p id="forgot-message" class="message-text"></p>
+            <button id="send-reset-btn" class="auth-button">ENVIAR CORREO</button>
+            <button id="close-forgot-modal" class="modal-cancel-btn">Cancelar</button>
+        </div>
+    </div>
+
+    <footer class="text-white py-4 mt-10 w-full" 
+        style="background: linear-gradient(to right,#2563eb, yellow);">
+        <div class="container-fluid px-4 md:px-20 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="mb-0 font-semibold" style="color:black;">© 2026 Mis Manos Hablarán</p>
+            
+            
+            <button onclick="window.location.href='introduccion_usuario.html'" 
+                    class="bg-blue-600 text-white px-6 py-2 rounded-full shadow-md hover:bg-blue-700 transition font-bold text-sm">
+                Acerca de la app
+            </button>
+             <a href="opiniones.html" 
+           class="font-bold hover:underline"
+           style="color: black;">
+            Opiniones y sugerencias
+        </a>
+        </div>
+    </footer> 
+
+    <script type="module" src="app.js"></script>
+    <script src="fondo.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Visibilidad Contraseña
+        function setupToggle(inputId, toggleId) {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+            toggle.addEventListener('click', () => {
+                const type = input.type === 'password' ? 'text' : 'password';
+                input.type = type;
+                toggle.textContent = type === 'password' ? '👁️' : '🙈';
+            });
+        }
+        setupToggle('login-password', 'toggle-login-password');
+        setupToggle('register-password', 'toggle-register-password');
+
+        // Validación
+        const passwordInput = document.getElementById("register-password");
+        passwordInput.addEventListener("input", function() {
+            const value = passwordInput.value;
+            updateRule(document.getElementById("rule-length"), value.length >= 8, "Mínimo 8 caracteres");
+            updateRule(document.getElementById("rule-uppercase"), /[A-Z]/.test(value), "Una mayúscula");
+            updateRule(document.getElementById("rule-number"), /\d/.test(value), "Un número");
+            updateRule(document.getElementById("rule-special"), /[@$!%*#?&]/.test(value), "Un carácter especial");
+        });
+
+        function updateRule(element, valid, text) {
+            element.textContent = (valid ? "✅ " : "❌ ") + text;
+            element.style.color = valid ? "#10b981" : "#ef4444";
+        }
+
+        // Modal
+        const forgotModal = document.getElementById('forgot-modal');
+        document.getElementById('open-forgot-modal').addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotModal.classList.remove('hidden');
+        });
+        document.getElementById('close-forgot-modal').addEventListener('click', () => {
+            forgotModal.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opiniones | Mis Manos Hablarán</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+    background-color: #f7f7f7;
+}
+</style>
+
+</head>
+
+<body class="font-semibold">
+
+<!-- HEADER -->
+<header class="text-center py-10 shadow-lg relative"
+style="background: linear-gradient(to right, yellow, #2563eb);">
+
+    <!-- BOTÓN VOLVER -->
+    <div class="absolute top-6 left-6">
+        <a href="introduccion_usuario.html"
+           class="flex items-center gap-2 bg-white text-blue-700 px-4 py-2 rounded-full shadow-md font-bold text-sm transition hover:bg-yellow-200 hover:scale-105">
+            Volver
+        </a>
+    </div>
+
+    <h1 class="text-4xl font-bold text-blue-900">Opiniones y Sugerencias</h1>
+    <p class="text-gray-800 mt-2">Ayúdanos a mejorar la plataforma</p>
+
+</header>
+
+<!-- MAIN -->
+<main class="min-h-screen px-4 py-10">
+
+    <div class="max-w-5xl mx-auto space-y-10">
+
+        <!-- FORMULARIO -->
+        <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+
+            <h2 class="text-3xl font-bold text-center text-blue-700 mb-2">
+                Déjanos tu opinión
+            </h2>
+
+            <p class="text-center text-gray-600 mb-6">
+                Tu opinión es muy importante. Ayúdanos a mejorar la experiencia.
+            </p>
+
+            <form id="form-opinion" class="space-y-5">
+
+                <!-- NOMBRE -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">
+                        Nombre
+                    </label>
+                    <input id="nombre" type="text" placeholder="Ingresa tu nombre"
+                        class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <!-- TIPO -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">
+                        Tipo
+                    </label>
+                    <select id="tipo"
+                        class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="">Selecciona una opción</option>
+                        <option value="Opinión">Opinión</option>
+                        <option value="sugerencia"> Sugerencia</option>
+                    </select>
+                </div>
+
+                <!-- MENSAJE -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">
+                        Mensaje
+                    </label>
+                    <textarea id="mensaje" rows="5" placeholder="Escribe aquí..."
+                        class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- BOTÓN -->
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                    Enviar
+                </button>
+
+            </form>
+        </div>
+
+        <!-- 🔥 SECCIÓN DE SOPORTE (NUEVA) -->
+        <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-md border-t-4 border-green-500 text-center">
+
+            <h3 class="text-xl font-bold text-green-700 mb-2">
+                ¿Necesitas ayuda?
+            </h3>
+
+            <p class="text-gray-600 mb-4">
+                Si tienes problemas técnicos o necesitas asistencia, contáctanos directamente:
+            </p>
+
+            <div class="flex justify-center gap-4 flex-wrap">
+
+                <a href="https://mismanoshablaran.com/support" target="_blank"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold hover:bg-blue-700 transition">
+                    Correo
+                </a>
+
+                <a href="https://wa.me/5664101352" target="_blank"
+                   class="bg-green-600 text-white px-4 py-2 rounded-full font-bold hover:bg-green-700 transition">
+                    WhatsApp
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- LISTA DE OPINIONES -->
+        <div class="max-w-3xl mx-auto">
+
+            <h3 class="text-2xl font-bold text-center mb-6 text-blue-700">
+                Opiniones de usuarios
+            </h3>
+
+            <div id="lista-opiniones" class="space-y-4">
+                <!-- Firebase insertará aquí -->
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="text-white py-4 w-full"
+    style="background: linear-gradient(to right, #2563eb, yellow);">
+      <div class="container-fluid px-4 md:px-20 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="mb-0 font-semibold" style="color: black;">© 2026 Mis Manos Hablarán</p>
+
+    </div>
+
+</footer>
+
+<script type="module" src="opiniones.js"></script>
+
+</body>
+</html>

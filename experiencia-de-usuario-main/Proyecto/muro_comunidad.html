@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Muro de la Comunidad | Mis Manos Hablarán</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        .post-card {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        
+        .fade-in {
+            animation: fadeIn .4s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* ── REACTIONS ── */
+        
+        .reactions-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-top: 1px solid #f1f5f9;
+            flex-wrap: wrap;
+        }
+        
+        .reaction-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 100px;
+            padding: 5px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            color: #475569;
+            user-select: none;
+        }
+        
+        .reaction-btn:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+            transform: scale(1.05);
+        }
+        
+        .reaction-btn.reacted {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+        
+        .reaction-count {
+            font-size: 12px;
+            font-weight: 700;
+        }
+        /* ── COMMENTS ── */
+        
+        .comments-section {
+            border-top: 1px solid #f1f5f9;
+            padding: 12px 16px;
+        }
+        
+        .toggle-comments-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0;
+            transition: color .2s;
+        }
+        
+        .toggle-comments-btn:hover {
+            color: #1d4ed8;
+        }
+        
+        .comments-list {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .comments-list.open {
+            display: block;
+        }
+        
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .comment-bubble {
+            background: #f8fafc;
+            border-radius: 0 12px 12px 12px;
+            padding: 8px 12px;
+            flex: 1;
+        }
+        
+        .comment-author {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1d4ed8;
+            margin-bottom: 2px;
+        }
+        
+        .comment-text {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.4;
+        }
+        
+        .comment-time {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        
+        .comment-input-wrap {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            align-items: flex-end;
+        }
+        
+        .comment-input {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            resize: none;
+            outline: none;
+            transition: border-color .2s;
+            min-height: 36px;
+            max-height: 100px;
+            line-height: 1.4;
+        }
+        
+        .comment-input:focus {
+            border-color: #93c5fd;
+        }
+        
+        .comment-send-btn {
+            background: #1d4ed8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background .2s, transform .15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .comment-send-btn:hover {
+            background: #1e40af;
+            transform: scale(1.05);
+        }
+        /* ── YOUTUBE EMBED ── */
+        
+        .yt-embed-wrap {
+            position: relative;
+            width: 100%;
+            background: #000;
+            aspect-ratio: 16/9;
+        }
+        
+        .yt-embed-wrap iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        /* ── EMPTY STATE ── */
+        
+        .empty-wall {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body class="p-4 pb-20">
+
+    <nav class="bg-blue-600 text-white p-4 shadow-xl flex justify-between items-center fixed top-0 left-0 w-full z-50">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='pagina_inicio.html'">
+            <span class="text-2xl">←</span>
+            <span class="text-xl font-bold">Volver al Dashboard</span>
+        </div>
+        <span class="text-sm bg-blue-700 px-3 py-1 rounded-full">Muro Comunidad</span>
+    </nav>
+
+    <div class="pt-20">
+        <h1 class="text-center text-3xl font-extrabold text-gray-800 mb-8">Comunidad Mis Manos Hablarán</h1>
+
+        <div id="contenedor-muro" class="space-y-8">
+            <p class="text-center text-gray-500">Cargando publicaciones...</p>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'solicitudes_muro';
+        const REACTIONS_KEY = 'muro_reacciones';
+        const COMMENTS_KEY = 'muro_comentarios';
+
+        // ── STORAGE HELPERS ───────────────────────────────────────────
+        function getSolicitudes() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function getReacciones() {
+            try {
+                return JSON.parse(localStorage.getItem(REACTIONS_KEY) || '{}');
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveReacciones(obj) {
+            localStorage.setItem(REACTIONS_KEY, JSON.stringify(obj));
+        }
+
+        function getComentarios() {
+            try {
+                return JSON.parse(localStorage.getItem(COMMENTS_KEY) || '{}');
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveComentarios(obj) {
+            localStorage.setItem(COMMENTS_KEY, JSON.stringify(obj));
+        }
+
+        // Usuario simulado (en producción vendría del auth)
+        const CURRENT_USER = localStorage.getItem('profesorNombre') || 'Tú';
+        const CURRENT_USER_ID = localStorage.getItem('userId') || 'user_' + Math.random().toString(36).slice(2, 8);
+        if (!localStorage.getItem('userId')) localStorage.setItem('userId', CURRENT_USER_ID);
+
+        // ── REACCIONES ────────────────────────────────────────────────
+        const EMOJIS = ['👍', '❤️', '🙌', '🔥', '😮'];
+
+        function toggleReaccion(postId, emoji) {
+            const all = getReacciones();
+            if (!all[postId]) all[postId] = {};
+            if (!all[postId][emoji]) all[postId][emoji] = [];
+
+            const idx = all[postId][emoji].indexOf(CURRENT_USER_ID);
+            if (idx === -1) {
+                all[postId][emoji].push(CURRENT_USER_ID);
+            } else {
+                all[postId][emoji].splice(idx, 1);
+            }
+            saveReacciones(all);
+            renderReacciones(postId);
+        }
+
+        function renderReacciones(postId) {
+            const all = getReacciones();
+            const bar = document.getElementById('reactions-' + postId);
+            if (!bar) return;
+            const postReactions = all[postId] || {};
+
+            bar.innerHTML = '';
+            EMOJIS.forEach(emoji => {
+                const users = postReactions[emoji] || [];
+                const count = users.length;
+                const reacted = users.includes(CURRENT_USER_ID);
+                const btn = document.createElement('button');
+                btn.className = 'reaction-btn' + (reacted ? ' reacted' : '');
+                btn.innerHTML = `<span>${emoji}</span><span class="reaction-count">${count > 0 ? count : ''}</span>`;
+                btn.title = reacted ? 'Quitar reacción' : 'Reaccionar';
+                btn.onclick = () => toggleReaccion(postId, emoji);
+                bar.appendChild(btn);
+            });
+        }
+
+        // ── COMENTARIOS ───────────────────────────────────────────────
+        function agregarComentario(postId, texto) {
+            if (!texto.trim()) return;
+            const all = getComentarios();
+            if (!all[postId]) all[postId] = [];
+            all[postId].push({
+                id: 'c_' + Date.now(),
+                autor: CURRENT_USER,
+                texto: texto.trim(),
+                fecha: new Date().toISOString()
+            });
+            saveComentarios(all);
+            renderComentarios(postId);
+        }
+
+        function renderComentarios(postId) {
+            const all = getComentarios();
+            const list = document.getElementById('comments-list-' + postId);
+            const toggleBtn = document.getElementById('toggle-comments-' + postId);
+            if (!list) return;
+
+            const comentarios = all[postId] || [];
+            const count = comentarios.length;
+
+            if (toggleBtn) {
+                toggleBtn.textContent = count > 0 ?
+                    `💬 ${count} comentario${count !== 1 ? 's' : ''}` :
+                    '💬 Comentar';
+            }
+
+            // Remove existing comments (keep input)
+            const existingItems = list.querySelectorAll('.comment-item');
+            existingItems.forEach(el => el.remove());
+
+            const inputWrap = list.querySelector('.comment-input-wrap');
+
+            comentarios.forEach(c => {
+                const fecha = new Date(c.fecha).toLocaleTimeString('es-MX', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const inicial = (c.autor || 'A')[0].toUpperCase();
+                const item = document.createElement('div');
+                item.className = 'comment-item';
+                item.innerHTML = `
+                    <div class="comment-avatar">${inicial}</div>
+                    <div class="comment-bubble">
+                        <div class="comment-author">${c.autor}</div>
+                        <div class="comment-text">${escapeHtml(c.texto)}</div>
+                        <div class="comment-time">${fecha}</div>
+                    </div>`;
+                list.insertBefore(item, inputWrap);
+            });
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function toggleComments(postId) {
+            const list = document.getElementById('comments-list-' + postId);
+            if (!list) return;
+            list.classList.toggle('open');
+        }
+
+        // ── YOUTUBE ID ────────────────────────────────────────────────
+        function getYouTubeEmbedUrl(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
+            ];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return `https://www.youtube.com/embed/${match[1]}`;
+            }
+            return null;
+        }
+
+        // ── CARGAR MURO ───────────────────────────────────────────────
+        function cargarMuro() {
+            const contenedor = document.getElementById('contenedor-muro');
+            const todas = getSolicitudes();
+            const aprobadas = todas.filter(s => s.estado === 'aceptado');
+
+            contenedor.innerHTML = '';
+
+            if (aprobadas.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="empty-wall">
+                        <div style="font-size:3rem; margin-bottom:1rem;">📭</div>
+                        <p class="text-lg font-medium">Aún no hay publicaciones en el muro.</p>
+                        <p class="text-sm mt-2">El administrador aprobará el contenido de los profesores pronto.</p>
+                    </div>`;
+                return;
+            }
+
+            aprobadas.forEach(data => {
+                const postId = data.id || ('post_' + Math.random().toString(36).slice(2, 8));
+                const post = document.createElement('div');
+                post.className = 'post-card bg-white rounded-xl shadow-md border mb-6 overflow-hidden fade-in';
+
+                const fecha = data.fecha ?
+                    new Date(data.fecha).toLocaleDateString('es-MX', {
+                        day: '2-digit', month: 'long', year: 'numeric'
+                    }) : '';
+
+                // ── MEDIA HTML ─────────────────────────────────────────
+                let mediaHTML = '';
+
+                if (data.tipo === 'video/youtube' && data.archivoURL) {
+                    // YouTube: extraer embed URL
+                    const embedUrl = getYouTubeEmbedUrl(data.archivoURL);
+                    if (embedUrl) {
+                        mediaHTML = `
+                        <div class="yt-embed-wrap">
+                            <iframe src="${embedUrl}" allowfullscreen
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                            </iframe>
+                        </div>`;
+                    }
+                } else if (data.archivoURL && data.archivoURL.startsWith('data:video')) {
+                    // Video grabado/subido — guardado como dataURL en localStorage
+                    mediaHTML = `
+                    <div class="bg-black">
+                        <video src="${data.archivoURL}" controls class="w-full h-auto" style="max-height:340px;">
+                        </video>
+                    </div>`;
+                } else if (data.archivoURL && data.tipo && data.tipo.indexOf('image') === 0) {
+                    // Imagen
+                    mediaHTML = `<div class="bg-gray-50"><img src="${data.archivoURL}" class="w-full h-auto max-h-96 object-contain" alt="imagen publicación" /></div>`;
+                } else if (data.nombreArchivo && data.tipo && data.tipo.indexOf('video') === 0) {
+                    // Fallback: ruta local (para compatibilidad con versiones anteriores)
+                    const rutaLocal = 'video_grabados/' + data.nombreArchivo;
+                    mediaHTML = `<div class="bg-black"><video src="${rutaLocal}" controls class="w-full h-auto"></video></div>`;
+                }
+
+                const tipoLabel = data.tipo === 'video/youtube' ? '▶️ YouTube' :
+                    (data.tipo && data.tipo.indexOf('image') === 0 ? '🖼️ Imagen' : '🎬 Video');
+
+                post.innerHTML = `
+                <div class="p-4 border-b flex justify-between items-start">
+                    <div>
+                        <p class="font-bold text-blue-600 text-sm">👤 ${data.profesorNombre || 'Profesor'}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">${fecha}</p>
+                    </div>
+                    <span class="text-xs bg-blue-50 text-blue-600 font-bold px-2 py-1 rounded-full">${tipoLabel}</span>
+                </div>
+                ${mediaHTML}
+                <div class="p-4">
+                    ${data.titulo ? `<p class="font-semibold text-gray-800 text-sm mb-1">${data.titulo}</p>` : ''}
+                    ${data.tipo === 'video/youtube' && data.archivoURL
+                        ? `<a href="${data.archivoURL}" target="_blank" class="text-xs text-blue-500 hover:underline">🔗 Ver en YouTube</a>`
+                        : (data.nombreArchivo && data.tipo !== 'text/only' && !data.archivoURL?.startsWith('data:')
+                            ? `<p class="text-xs text-green-600 font-bold">✓ ${data.nombreArchivo}</p>` : '')}
+                </div>
+
+                <!-- REACCIONES -->
+                <div id="reactions-${postId}" class="reactions-bar"></div>
+
+                <!-- COMENTARIOS -->
+                <div class="comments-section">
+                    <button id="toggle-comments-${postId}" class="toggle-comments-btn" onclick="toggleComments('${postId}')">💬 Comentar</button>
+                    <div id="comments-list-${postId}" class="comments-list">
+                        <div class="comment-input-wrap">
+                            <textarea class="comment-input" id="input-${postId}" placeholder="Escribe un comentario..." rows="1"
+                                onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); enviarComentario('${postId}')}"></textarea>
+                            <button class="comment-send-btn" onclick="enviarComentario('${postId}')">➤</button>
+                        </div>
+                    </div>
+                </div>`;
+
+                contenedor.appendChild(post);
+                renderReacciones(postId);
+                renderComentarios(postId);
+            });
+        }
+
+        function enviarComentario(postId) {
+            const input = document.getElementById('input-' + postId);
+            if (!input) return;
+            agregarComentario(postId, input.value);
+            input.value = '';
+        }
+
+        cargarMuro();
+
+        // Escuchar cambios en storage (cuando el admin aprueba desde otra pestaña)
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY || e.key === REACTIONS_KEY || e.key === COMMENTS_KEY) {
+                cargarMuro();
+            }
+        });
+    </script>
+</body>
+
+</html>
