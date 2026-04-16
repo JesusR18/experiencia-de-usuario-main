@@ -1,20 +1,13 @@
 {
-  "name": "bot-whatsapp-mmh",
+  "name": "mmh-web",
   "version": "1.0.0",
-  "description": "Bot de WhatsApp para Mis Manos Hablarán - Accesibilidad en Medios y Eventos",
+  "description": "Servidor web estático — Mis Manos Hablarán",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^1.6.0",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "firebase-admin": "^12.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
+    "express": "^4.18.2"
   },
   "engines": {
     "node": ">=18.0.0"
