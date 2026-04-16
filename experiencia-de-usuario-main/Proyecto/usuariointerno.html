@@ -479,9 +479,16 @@
       </button>
     </div>
 
+    <!-- Buscador -->
+    <div class="card-panel mb-4 py-3">
+      <input type="text" id="search-cots" placeholder="Buscar por cliente..."
+        oninput="aplicarFiltrosCots()"
+        style="max-width:320px;display:inline-block;">
+    </div>
+
     <!-- Filtro por estado -->
     <div class="flex gap-2 flex-wrap mb-5">
-      <button class="tab-btn active" onclick="filtrarCots('todas',this)">Todas</button>
+      <button class="tab-btn active" id="tab-cots-todas" onclick="filtrarCots('todas',this)">Todas</button>
       <button class="tab-btn inactive" onclick="filtrarCots('borrador',this)">📝 Borrador</button>
       <button class="tab-btn inactive" onclick="filtrarCots('enviada',this)">📤 Enviadas</button>
       <button class="tab-btn inactive" onclick="filtrarCots('aceptada',this)">✅ Aceptadas</button>
@@ -644,14 +651,16 @@
 
 <!-- ════════════════════ FIREBASE + LÓGICA ════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
-//  GUARD
+//  GUARD — Firebase Auth + localStorage
 // ══════════════════════════════════════════════════════════════
 const mmhRole = localStorage.getItem('MMH_role');
 const mmhUid  = localStorage.getItem('MMH_uid');
-if (mmhRole !== 'empleado' && mmhUid !== 'JesusRUTP') {
+// Bloqueo inmediato si localStorage no tiene la sesión de empleado
+if (mmhRole !== 'empleado' || !mmhUid) {
   window.location.href = 'index.html';
 }
 
@@ -666,9 +675,29 @@ firebase.initializeApp({
   messagingSenderId: "637462888639",
   appId:             "1:637462888639:web:c4070137237c211dbd460a"
 });
-const db = firebase.firestore();
-const COL_CLIENTES     = 'clientes_accesibilidad';
-const COL_COTIZACIONES = 'cotizaciones_accesibilidad';
+const db   = firebase.firestore();
+const auth = firebase.auth();
+
+// ── Colecciones en Firestore ──────────────────────────────────
+const COL_CLIENTES     = 'clientes_accesibilidad';      // Directorio de clientes
+const COL_COTIZACIONES = 'cotizaciones_accesibilidad';  // Cotizaciones generadas
+
+// ── Verificar sesión Firebase Auth ───────────────────────────
+// Si Firebase Auth tiene sesión activa, perfecto.
+// Si no (bypass sin auth), igual continuamos — las reglas de Firestore
+// deben permitir acceso autenticado o con reglas abiertas para estas colecciones.
+auth.onAuthStateChanged(user => {
+  if (user) {
+    // Actualizar nombre en sidebar con datos reales
+    const nombre = user.displayName || user.email?.split('@')[0] || 'Usuario';
+    const el = document.getElementById('sidebar-nombre');
+    if (el) el.textContent = nombre;
+  }
+  // Si no hay sesión Firebase Auth pero sí hay localStorage de empleado,
+  // igual cargamos el dashboard (el acceso a Firestore depende de las reglas).
+  cargarDashboard();
+  iniciarListenerSolicitudes();
+});
 
 // ══════════════════════════════════════════════════════════════
 //  CATÁLOGO DE SERVICIOS (precio base en MXN)
@@ -1218,10 +1247,21 @@ async function guardarCotizacion(e) {
   const clienteId  = clienteEl.value;
   const clienteNom = clienteEl.selectedOptions[0]?.dataset.nombre || '';
 
+  // Tarea 20 — validar cliente seleccionado
+  if (!clienteId) {
+    showToast('Selecciona un cliente antes de guardar.', 'error');
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = 'Guardando...';
 
+  // Tarea 15 — número automático de cotización
+  const snapNum = await db.collection(COL_COTIZACIONES).get();
+  const numero  = 'COT-' + String(snapNum.size + 1).padStart(4, '0');
+
   const data = {
+    numero,
     cliente_id:    clienteId,
     cliente_nombre: clienteNom,
     modalidad:     document.getElementById('cot-modalidad').value,
@@ -1287,6 +1327,7 @@ function renderCotizaciones(list) {
         <div class="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div class="flex items-center gap-2 flex-wrap mb-1">
+              ${c.numero ? `<span class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded">${c.numero}</span>` : ''}
               <p class="font-bold text-gray-800 text-base">${c.cliente_nombre || '—'}</p>
               ${badgeEstadoCot(c.estado || 'borrador')}
               ${c.modalidad ? `<span class="badge badge-negociacion">${MODALIDAD_LABELS[c.modalidad] || c.modalidad}</span>` : ''}
@@ -1306,6 +1347,14 @@ function renderCotizaciones(list) {
         <div class="flex items-center gap-2 mt-4 flex-wrap">
           <button class="btn-edit" onclick="verDetalleCot('${c.id}')">
             <i class="ph-eye-fill"></i> Ver detalle
+          </button>
+          <button class="btn-edit" onclick="enviarCotizacionEmail('${c.id}')"
+            style="background:#eff6ff;color:#1d4ed8;">
+            ✉️ Enviar por correo
+          </button>
+          <button class="btn-edit" onclick="imprimirCotizacion('${c.id}')"
+            style="background:#f5f3ff;color:#7c3aed;">
+            🖨️ Imprimir
           </button>
           ${c.estado === 'borrador' ? `
             <button class="btn-success" onclick="cambiarEstadoCot('${c.id}','enviada')">
@@ -1333,14 +1382,7 @@ function borderEstado(e) {
     cancelada:'border-yellow-400' }[e] || 'border-gray-300';
 }
 
-function filtrarCots(estado, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.className = 'tab-btn inactive');
-  btn.className = 'tab-btn active';
-  const filt = estado === 'todas'
-    ? todasCotizaciones
-    : todasCotizaciones.filter(c => c.estado === estado);
-  renderCotizaciones(filt);
-}
+// filtrarCots y aplicarFiltrosCots definidos arriba (Tarea 16)
 
 async function cambiarEstadoCot(id, nuevoEstado) {
   try {
@@ -1429,7 +1471,17 @@ function verDetalleCot(id) {
         </tfoot>
       </table>
     </div>
-    <p class="text-xs text-gray-400 mt-3">* Precios en MXN · IVA no incluido</p>`;
+    <p class="text-xs text-gray-400 mt-3">* Precios en MXN · IVA no incluido</p>
+    <div class="flex gap-3 mt-5">
+      <button onclick="imprimirCotizacion('${c.id}')"
+        class="btn-primary flex items-center gap-2" style="background:#7c3aed;">
+        🖨️ Imprimir cotización
+      </button>
+      <button onclick="enviarCotizacionEmail('${c.id}')"
+        class="btn-primary flex items-center gap-2">
+        ✉️ Enviar por correo
+      </button>
+    </div>`;
 
   abrirModal('modal-cot-detalle');
 }
@@ -1558,6 +1610,10 @@ function renderSolicitudes(list) {
               onclick="convertirEnCliente('${s.id}')">
               🏢 Convertir en cliente
             </button>` : ''}
+          ${(s.estado === 'aceptada' || s.estado === 'rechazada') ? `
+            <button class="btn-danger" onclick="eliminarSolicitud('${s.id}')">
+              <i class="ph-trash-fill"></i> Eliminar
+            </button>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -1607,6 +1663,165 @@ async function cambiarEstadoSol(id, nuevoEstado) {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+//  TAREA 16 — BUSCAR + FILTRAR COTIZACIONES
+// ══════════════════════════════════════════════════════════════
+let estadoFiltroActual = 'todas';
+
+function filtrarCots(estado, btn) {
+  estadoFiltroActual = estado;
+  document.querySelectorAll('.tab-btn').forEach(b => b.className = 'tab-btn inactive');
+  btn.className = 'tab-btn active';
+  aplicarFiltrosCots();
+}
+
+function aplicarFiltrosCots() {
+  const q = (document.getElementById('search-cots')?.value || '').toLowerCase().trim();
+  let filt = estadoFiltroActual === 'todas'
+    ? todasCotizaciones
+    : todasCotizaciones.filter(c => c.estado === estadoFiltroActual);
+  if (q) filt = filt.filter(c => (c.cliente_nombre || '').toLowerCase().includes(q));
+  renderCotizaciones(filt);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  TAREA 17 — ENVIAR COTIZACIÓN POR CORREO
+// ══════════════════════════════════════════════════════════════
+function enviarCotizacionEmail(id) {
+  const c = todasCotizaciones.find(x => x.id === id);
+  if (!c) return;
+
+  const serviciosTexto = (c.servicios || [])
+    .map(s => `  • ${s.nombre}: ${s.cantidad} ${s.unidad} — ${fmt(s.subtotal)}`)
+    .join('\n');
+
+  const cuerpo =
+`Estimado/a equipo de ${c.cliente_nombre || 'cliente'},
+
+Adjuntamos la cotización ${c.numero || ''} de servicios LSM de Mis Manos Hablarán.
+
+DETALLE DE SERVICIOS:
+${serviciosTexto}
+
+TOTAL ESTIMADO: ${fmt(c.total)} MXN (IVA no incluido)
+
+Modalidad: ${c.modalidad || '—'}
+Fecha de servicio: ${c.fecha_servicio || '—'}
+${c.duracion ? 'Duración: ' + c.duracion : ''}
+${c.notas ? '\nNotas: ' + c.notas : ''}
+
+Quedamos a sus órdenes para cualquier aclaración.
+
+Atentamente,
+Mis Manos Hablarán
+lenguajeDeSeñasMx@gmail.com`;
+
+  const asunto = encodeURIComponent(`Cotización ${c.numero || ''} — Mis Manos Hablarán`);
+  const body   = encodeURIComponent(cuerpo);
+  window.open(`mailto:?subject=${asunto}&body=${body}`);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  TAREA 18 — IMPRIMIR COTIZACIÓN
+// ══════════════════════════════════════════════════════════════
+function imprimirCotizacion(id) {
+  const c = todasCotizaciones.find(x => x.id === id);
+  if (!c) return;
+
+  const filas = (c.servicios || []).map(s => `
+    <tr>
+      <td>${s.nombre}</td>
+      <td style="text-align:center">${s.cantidad} ${s.unidad}</td>
+      <td style="text-align:right">${fmt(s.precio_unitario)}</td>
+      <td style="text-align:right"><strong>${fmt(s.subtotal)}</strong></td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cotización ${c.numero || ''}</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; color: #1e293b; margin: 40px; }
+    h1   { color: #4f46e5; font-size: 22px; margin-bottom: 4px; }
+    .sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+    .field label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: #94a3b8; display: block; margin-bottom: 2px; }
+    .field span  { font-size: 14px; font-weight: 600; color: #1e293b; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    th { background: #f1f5f9; padding: 10px 14px; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .05em; text-align: left; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .total-row td { font-size: 16px; font-weight: 800; color: #4f46e5;
+      border-top: 2px solid #e2e8f0; }
+    .footer { margin-top: 32px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;
+      padding-top: 14px; }
+    @media print { body { margin: 20px; } }
+  </style>
+</head>
+<body>
+  <h1>🤟 Mis Manos Hablarán</h1>
+  <p class="sub">Servicios de Lengua de Señas Mexicana · lenguajeDeSeñasMx@gmail.com</p>
+
+  <div class="grid">
+    <div class="field"><label>Número de cotización</label><span>${c.numero || '—'}</span></div>
+    <div class="field"><label>Cliente</label><span>${c.cliente_nombre || '—'}</span></div>
+    <div class="field"><label>Modalidad</label><span>${c.modalidad || '—'}</span></div>
+    <div class="field"><label>Fecha de servicio</label><span>${c.fecha_servicio || '—'}</span></div>
+    ${c.duracion ? `<div class="field"><label>Duración</label><span>${c.duracion}</span></div>` : ''}
+    <div class="field"><label>Estado</label><span>${c.estado || 'borrador'}</span></div>
+  </div>
+
+  ${c.notas ? `<div style="background:#f8fafc;border-radius:8px;padding:14px 18px;margin-bottom:24px;">
+    <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;">Notas</label>
+    <p style="font-size:13px;margin-top:4px;color:#475569;">${c.notas}</p>
+  </div>` : ''}
+
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:12px;">Servicios cotizados</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Servicio</th><th style="text-align:center">Cantidad</th>
+        <th style="text-align:right">Precio unitario</th><th style="text-align:right">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>${filas}</tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td colspan="3" style="text-align:right">Total estimado:</td>
+        <td style="text-align:right">${fmt(c.total)}</td>
+      </tr>
+    </tfoot>
+  </table>
+  <p style="font-size:11px;color:#94a3b8;">* Precios en MXN · IVA no incluido</p>
+
+  <div class="footer">
+    Mis Manos Hablarán · lenguajeDeSeñasMx@gmail.com · (222) 862-2800
+  </div>
+  <script>window.onload = () => { window.print(); }<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  TAREA 19 — ELIMINAR SOLICITUD
+// ══════════════════════════════════════════════════════════════
+function eliminarSolicitud(id) {
+  confirmar(
+    '¿Eliminar solicitud?',
+    'Se eliminará permanentemente del registro.',
+    async () => {
+      await db.collection(COL_SOLS).doc(id).delete();
+      showToast('Solicitud eliminada.');
+    }
+  );
+}
+
 // ── Actualizar showSection para iniciar el listener ──────────
 const _showSectionOriginal = showSection;
 showSection = function(id, el) {
@@ -1617,12 +1832,7 @@ showSection = function(id, el) {
   }
 };
 
-// ══════════════════════════════════════════════════════════════
-//  INICIO
-// ══════════════════════════════════════════════════════════════
-cargarDashboard();
-// Iniciar listener en segundo plano para notificaciones inmediatas
-iniciarListenerSolicitudes();
+// (Inicio gestionado por auth.onAuthStateChanged arriba)
 </script>
 </body>
 </html>

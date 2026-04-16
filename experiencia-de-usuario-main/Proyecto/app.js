@@ -86,7 +86,15 @@ async function handleSignIn(input, password) {
     // Soporte especial para usuarios internos de prueba
     if (isInternal) {
         try {
-            console.log('[DEBUG] Iniciando login especial interno', input);
+            // Intentar Firebase Auth real para que Firestore funcione
+            try {
+                const emailAuth = input.includes('@') ? input.trim() : 'jjrockg@hotmail.com';
+                await signInWithEmailAndPassword(auth, emailAuth, password);
+            } catch (authErr) {
+                // Si Firebase Auth falla (cuenta no creada aún), continuar igual
+                console.warn('Firebase Auth interno falló, usando solo localStorage:', authErr.code);
+            }
+
             const userId = 'JesusRUTP';
             const profileRef = doc(db, 'perfiles', userId);
             await setDoc(profileRef, {
@@ -106,8 +114,8 @@ async function handleSignIn(input, password) {
             }, { merge: true });
             localStorage.setItem('MMH_role', 'empleado');
             localStorage.setItem('MMH_uid', userId);
-            window.location.href = 'pagina_inicio.html';
-            return { success: true, message: 'Redirigiendo al menú principal (usuario interno especial).' };
+            window.location.href = 'usuariointerno.html';
+            return { success: true, message: 'Acceso al panel interno.' };
         } catch (err) {
             console.error('Error acceso interno fijo', err);
             return { success: false, message: 'No se pudo iniciar sesión interna.' };
@@ -154,6 +162,10 @@ async function handleSignIn(input, password) {
             localStorage.setItem('MMH_role', 'creador');
             localStorage.setItem('MMH_uid', user.uid);
             window.location.href = 'Dashboard_Creador.html';
+        } else if (userData.rol === 'empleado') {
+            localStorage.setItem('MMH_role', 'empleado');
+            localStorage.setItem('MMH_uid', user.uid);
+            window.location.href = 'usuariointerno.html';
         } else {
             localStorage.setItem('MMH_role', userData.rol || 'usuario');
             localStorage.setItem('MMH_uid', user.uid);
