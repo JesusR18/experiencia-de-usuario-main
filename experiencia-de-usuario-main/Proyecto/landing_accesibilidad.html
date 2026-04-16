@@ -463,6 +463,95 @@ footer {
 /* ── SCROLL FADE ─────────────────────────────────────────── */
 .fade-in { opacity: 0; transform: translateY(20px); transition: opacity .6s, transform .6s; }
 .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── HAMBURGER MENU ──────────────────────────────────────── */
+.nav-burger {
+  display: none; flex-direction: column; gap: 5px;
+  cursor: pointer; padding: 6px; background: none; border: none;
+}
+.nav-burger span {
+  width: 22px; height: 2px; background: rgba(255,255,255,.85);
+  border-radius: 2px; transition: all .3s; display: block;
+}
+.nav-burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+.nav-mobile-menu {
+  display: none; flex-direction: column;
+  background: rgba(10,18,36,.98); backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding: 12px 20px 20px; gap: 2px;
+}
+.nav-mobile-menu.open { display: flex; }
+.nav-mobile-menu a {
+  color: rgba(255,255,255,.75); font-size: 15px; font-weight: 500;
+  padding: 13px 4px; border-bottom: 1px solid rgba(255,255,255,.05);
+  transition: color .2s;
+}
+.nav-mobile-menu a:last-of-type { border-bottom: none; }
+.nav-mobile-menu a:hover { color: var(--white); }
+.nav-mobile-cta { margin-top: 14px; }
+.nav-mobile-cta .btn { display: block; text-align: center; justify-content: center; width: 100%; }
+
+/* ── RESPONSIVE: TABLET (≤ 900px) ──────────────────────── */
+@media(max-width:900px) {
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── RESPONSIVE: MOBILE (≤ 768px) ──────────────────────── */
+@media(max-width:768px) {
+  .nav-links { display: none; }
+  .nav-cta   { display: none; }
+  .nav-burger { display: flex; }
+
+  #hero { padding: 100px 0 56px; }
+  .hero-sub { font-size: 16px; }
+  .hero-btns { flex-direction: column; gap: 10px; }
+  .hero-btns .btn { width: 100%; justify-content: center; }
+  .hero-stats { gap: 20px; }
+
+  #servicios, #como-funciona { padding: 60px 0; }
+  #sectores  { padding: 60px 0; }
+  #quiero-aprender { padding: 60px 0; }
+  #contacto  { padding: 60px 0; }
+
+  .cta-buttons { flex-direction: column; align-items: stretch; }
+  .cta-buttons .btn { width: 100%; justify-content: center; }
+
+  .contact-form-card { padding: 28px 20px; }
+
+  .footer-inner  { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+  .wa-float { width: 50px; height: 50px; font-size: 22px; bottom: 18px; right: 18px; }
+
+  .modal-box { padding: 28px 18px; width: 96%; }
+}
+
+/* ── RESPONSIVE: SMALL MOBILE (≤ 480px) ─────────────────── */
+@media(max-width:480px) {
+  .container { padding: 0 16px; }
+
+  #hero { padding: 88px 0 44px; }
+  .hero-stat-n { font-size: 22px; }
+  .hero-stats  { gap: 14px; flex-wrap: wrap; }
+
+  .section-title { font-size: clamp(22px, 6vw, 30px); }
+  .section-sub   { font-size: 15px; }
+
+  .service-card, .sector-card { padding: 22px 18px; }
+  .step-item { padding: 0 8px; }
+
+  .cta-inner h2 { font-size: clamp(22px, 6vw, 30px); }
+  .cta-inner p  { font-size: 15px; }
+  .cta-card-row { grid-template-columns: 1fr; gap: 12px; margin-top: 28px; }
+
+  .logos-row { gap: 10px; }
+  .logo-pill { padding: 8px 14px; font-size: 12px; }
+
+  .footer-links { gap: 14px; flex-wrap: wrap; }
+}
 </style>
 </head>
 <body>
@@ -484,6 +573,18 @@ footer {
       <div class="nav-cta">
         <a href="#quiero-aprender" class="btn btn-amber">Quiero empezar →</a>
       </div>
+      <button class="nav-burger" id="nav-burger" onclick="toggleMobileMenu()" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="nav-mobile-menu" id="nav-mobile-menu">
+    <a href="#servicios"     onclick="closeMobileMenu()">Servicios</a>
+    <a href="#sectores"      onclick="closeMobileMenu()">Sectores</a>
+    <a href="#como-funciona" onclick="closeMobileMenu()">¿Cómo funciona?</a>
+    <a href="#contacto"      onclick="closeMobileMenu()">Contacto</a>
+    <div class="nav-mobile-cta">
+      <a href="#quiero-aprender" class="btn btn-amber" onclick="closeMobileMenu()">Quiero empezar →</a>
     </div>
   </div>
 </nav>
@@ -956,7 +1057,18 @@ const COL = 'solicitudes_contacto';
 // ── Navbar scroll effect ─────────────────────────────────────
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  closeMobileMenu();
 });
+
+// ── Hamburger menu ────────────────────────────────────────────
+function toggleMobileMenu() {
+  document.getElementById('nav-mobile-menu').classList.toggle('open');
+  document.getElementById('nav-burger').classList.toggle('open');
+}
+function closeMobileMenu() {
+  document.getElementById('nav-mobile-menu').classList.remove('open');
+  document.getElementById('nav-burger').classList.remove('open');
+}
 
 // ── Scroll fade-in ──────────────────────────────────────────
 const observer = new IntersectionObserver(entries => {
