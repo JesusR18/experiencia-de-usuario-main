@@ -23,7 +23,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // ── Constantes Meta API ───────────────────────────────────────────────
-const TOKEN          = process.env.WHATSAPP_TOKEN;        // Tu token de acceso de Meta
+const TOKEN          = (process.env.WHATSAPP_TOKEN || '').trim();  // Tu token de acceso de Meta
 const PHONE_ID       = process.env.PHONE_NUMBER_ID;       // ID del número en Meta
 const VERIFY_TOKEN   = process.env.WEBHOOK_VERIFY_TOKEN;  // Token secreto para verificar webhook
 const API_URL        = `https://graph.facebook.com/v19.0/${PHONE_ID}/messages`;
