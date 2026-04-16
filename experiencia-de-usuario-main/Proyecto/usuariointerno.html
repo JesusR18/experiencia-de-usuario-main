@@ -1523,7 +1523,7 @@ function renderSolicitudes(list) {
             </p>
             <div class="grid grid-cols-1 gap-1 text-sm text-gray-600">
               ${s.email    ? `<span>✉️ <a href="mailto:${s.email}" class="text-blue-500 hover:underline">${s.email}</a></span>` : ''}
-              ${s.telefono ? `<span>📞 <a href="https://wa.me/52${s.telefono.replace(/\D/g,'')}" target="_blank" class="text-green-600 hover:underline">${s.telefono} · Abrir WhatsApp</a></span>` : ''}
+              ${s.telefono ? `<span>📞 ${s.telefono}</span>` : ''}
               <span>📋 Servicio: <strong>${servLabel}</strong></span>
             </div>
             ${s.mensaje ? `
@@ -1548,11 +1548,16 @@ function renderSolicitudes(list) {
             <button class="btn-edit" onclick="cambiarEstadoSol('${s.id}','revisada')">
               👁️ Marcar revisada
             </button>` : ''}
-          ${s.telefono ? `
-            <a href="https://wa.me/52${s.telefono.replace(/\D/g,'')}?text=${encodeURIComponent('Hola ' + (s.nombre||'') + ', soy de Mis Manos Hablarán. Recibimos tu solicitud sobre ' + servLabel + '. ¿Podemos coordinar una llamada?')}"
-              target="_blank" class="btn-edit" style="background:#dcfce7;color:#16a34a;">
-              💬 Responder por WhatsApp
+          ${s.email ? `
+            <a href="mailto:${s.email}?subject=${encodeURIComponent('Re: Tu solicitud - Mis Manos Hablarán')}&body=${encodeURIComponent('Hola ' + (s.nombre||'') + ',\n\nRecibimos tu solicitud sobre: ' + servLabel + '.\n\nNos pondremos en contacto contigo a la brevedad para coordinar los detalles.\n\nSaludos,\nMis Manos Hablarán')}"
+              class="btn-edit" style="background:#eff6ff;color:#2563eb;">
+              ✉️ Responder por correo
             </a>` : ''}
+          ${(s.estado === 'nueva' || s.estado === 'revisada') ? `
+            <button class="btn-edit" style="background:#f0fdf4;color:#15803d;"
+              onclick="convertirEnCliente('${s.id}')">
+              🏢 Convertir en cliente
+            </button>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -1565,6 +1570,26 @@ function filtrarSols(estado, btn) {
     ? todasSolicitudes
     : todasSolicitudes.filter(s => s.estado === estado);
   renderSolicitudes(filt);
+}
+
+function convertirEnCliente(solId) {
+  const s = todasSolicitudes.find(x => x.id === solId);
+  if (!s) return;
+
+  // Pre-llenar el modal de cliente con los datos de la solicitud
+  document.getElementById('form-cliente').reset();
+  document.getElementById('cliente-id').value    = '';
+  document.getElementById('modal-cliente-titulo').textContent = 'Nuevo Cliente (desde solicitud)';
+  document.getElementById('cl-nombre').value     = s.empresa  || s.nombre || '';
+  document.getElementById('cl-contacto').value   = s.nombre   || '';
+  document.getElementById('cl-email').value      = s.email    || '';
+  document.getElementById('cl-telefono').value   = s.telefono || '';
+  document.getElementById('cl-estado').value     = 'prospecto';
+  document.getElementById('cl-notas').value      =
+    `Solicitud web: ${s.servicio_interes || ''}\n${s.mensaje || ''}`.trim();
+
+  abrirModal('modal-cliente');
+  showToast('Datos pre-cargados desde la solicitud. Completa el formulario.');
 }
 
 async function cambiarEstadoSol(id, nuevoEstado) {
