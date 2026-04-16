@@ -55,50 +55,15 @@ async function enviarMensaje(to, body) {
   }, { headers: { Authorization: `Bearer ${TOKEN}` } });
 }
 
+// Menú de texto numerado (compatible con apps en modo desarrollo)
 async function enviarBotones(to, bodyText, botones) {
-  // botones: [{ id: 'btn_id', title: 'Texto del botón' }, ...]  (máx 3)
-  // Títulos: sin emojis, máx 20 caracteres (restricción de Meta API)
-  try {
-    await axios.post(API_URL, {
-      messaging_product: 'whatsapp',
-      to,
-      type: 'interactive',
-      interactive: {
-        type: 'button',
-        body: { text: bodyText },
-        action: {
-          buttons: botones.map(b => ({
-            type:  'reply',
-            reply: { id: b.id, title: b.title.substring(0, 20) }
-          }))
-        }
-      }
-    }, { headers: { Authorization: `Bearer ${TOKEN}` } });
-  } catch (err) {
-    const meta = err.response?.data;
-    console.error('Error Meta API (botones):', JSON.stringify(meta || err.message));
-    throw err;
-  }
+  const opciones = botones.map((b, i) => `${i + 1}. ${b.title}`).join('\n');
+  await enviarMensaje(to, `${bodyText}\n\n${opciones}\n\nResponde con el número de tu opción.`);
 }
 
 async function enviarLista(to, bodyText, titulo, filas) {
-  // filas: [{ id, title, description? }, ...]  (para más de 3 opciones)
-  await axios.post(API_URL, {
-    messaging_product: 'whatsapp',
-    to,
-    type: 'interactive',
-    interactive: {
-      type: 'list',
-      body: { text: bodyText },
-      action: {
-        button: 'Ver opciones',
-        sections: [{
-          title: titulo,
-          rows: filas
-        }]
-      }
-    }
-  }, { headers: { Authorization: `Bearer ${TOKEN}` } });
+  const opciones = filas.map((f, i) => `${i + 1}. ${f.title}`).join('\n');
+  await enviarMensaje(to, `${bodyText}\n\n${opciones}\n\nResponde con el número de tu opción.`);
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -137,14 +102,14 @@ async function manejarMensaje(telefono, texto, idBoton) {
   // ── MENÚ PRINCIPAL ─────────────────────────────────────────────────
   if (s.paso === 'menu') {
 
-    if (entrada === 'btn_cotizar') {
+    if (entrada === 'btn_cotizar' || entrada === '1' || entrada === 'cotizar') {
       s.paso = 'nombre';
       await enviarMensaje(telefono,
         '¡Perfecto! Vamos a preparar tu cotización. 📋\n\n' +
         'Primero, ¿cuál es tu *nombre completo*?'
       );
 
-    } else if (entrada === 'btn_info') {
+    } else if (entrada === 'btn_info' || entrada === '2') {
       await enviarMensaje(telefono,
         '📚 *Nuestros servicios incluyen:*\n\n' +
         '• 🎤 Interpretación LSM en eventos y conferencias\n' +
@@ -157,7 +122,7 @@ async function manejarMensaje(telefono, texto, idBoton) {
         'Escribe *menu* para volver al inicio o *cotizar* para solicitar un presupuesto.'
       );
 
-    } else if (entrada === 'btn_contacto') {
+    } else if (entrada === 'btn_contacto' || entrada === '3') {
       s.paso = 'esperando_contacto';
       await enviarMensaje(telefono,
         '👤 En breve un asesor te contactará.\n\n' +
@@ -236,8 +201,10 @@ async function manejarMensaje(telefono, texto, idBoton) {
   if (s.paso === 'servicio') {
     // Puede llegar como idBoton (lista) o texto
     const servicioId = idBoton || entrada;
+    const numIndex = parseInt(entrada) - 1;
     const servicio = SERVICIOS.find(sv => sv.id === servicioId) ||
-                     SERVICIOS.find(sv => sv.label.toLowerCase() === entrada);
+                     SERVICIOS.find(sv => sv.label.toLowerCase() === entrada) ||
+                     (numIndex >= 0 && numIndex < SERVICIOS.length ? SERVICIOS[numIndex] : null);
 
     if (!servicio) {
       await enviarLista(
@@ -271,7 +238,7 @@ async function manejarMensaje(telefono, texto, idBoton) {
   }
 
   if (s.paso === 'confirmacion') {
-    if (entrada === 'btn_confirmar') {
+    if (entrada === 'btn_confirmar' || entrada === '1' || entrada === 'confirmar' || entrada === 'si' || entrada === 'sí') {
       // Guardar en Firestore
       try {
         await db.collection('solicitudes_contacto').add({
@@ -305,7 +272,7 @@ async function manejarMensaje(telefono, texto, idBoton) {
         );
       }
 
-    } else if (entrada === 'btn_cancelar') {
+    } else if (entrada === 'btn_cancelar' || entrada === '2' || entrada === 'corregir' || entrada === 'no') {
       sesiones[telefono] = { paso: 'nombre', datos: {} };
       await enviarMensaje(telefono, 'Sin problema, empecemos de nuevo.\n\n¿Cuál es tu *nombre completo*?');
 
