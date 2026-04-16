@@ -994,13 +994,42 @@ function convertirEnCliente(solId) {
 
 async function cambiarEstadoSol(id, nuevoEstado) {
   try {
+    const sol = todasSolicitudes.find(x => x.id === id);
     await db.collection(COL_SOLS).doc(id).update({ estado: nuevoEstado });
-    showToast(
-      nuevoEstado === 'aceptada'  ? 'Solicitud aceptada.' :
-      nuevoEstado === 'rechazada' ? 'Solicitud rechazada.' :
-      'Estado actualizado.'
-    );
-    // onSnapshot actualiza la lista automáticamente
+
+    if (nuevoEstado === 'aceptada' && sol) {
+      // Verificar si ya existe un cliente con ese email para no duplicar
+      const emailCliente = sol.email || '';
+      let yaExiste = false;
+      if (emailCliente) {
+        const snap = await db.collection(COL_CLIENTES)
+          .where('email', '==', emailCliente).limit(1).get();
+        yaExiste = !snap.empty;
+      }
+
+      if (!yaExiste) {
+        const nuevoCliente = {
+          nombre:          sol.empresa || sol.nombre || 'Sin nombre',
+          tipo:            'empresa',
+          sector:          '',
+          contacto_nombre: sol.nombre  || '',
+          email:           emailCliente,
+          telefono:        sol.telefono || '',
+          ciudad:          '',
+          estado:          'prospecto',
+          notas:           ('Solicitud web: ' + (sol.servicio_interes || '') +
+                           (sol.mensaje ? '\n' + sol.mensaje : '')).trim(),
+          created_at:      firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await db.collection(COL_CLIENTES).add(nuevoCliente);
+        showToast('Solicitud aceptada y cliente creado en el directorio.');
+      } else {
+        showToast('Solicitud aceptada. El cliente ya existía en el directorio.');
+      }
+      cargarDashboard();
+    } else {
+      showToast(nuevoEstado === 'rechazada' ? 'Solicitud rechazada.' : 'Estado actualizado.');
+    }
   } catch (err) {
     console.error(err);
     showToast('Error al actualizar.', 'error');
