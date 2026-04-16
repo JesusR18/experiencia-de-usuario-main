@@ -26,7 +26,7 @@ const db = admin.firestore();
 const TOKEN          = (process.env.WHATSAPP_TOKEN || '').trim();  // Tu token de acceso de Meta
 const PHONE_ID       = process.env.PHONE_NUMBER_ID;       // ID del número en Meta
 const VERIFY_TOKEN   = process.env.WEBHOOK_VERIFY_TOKEN;  // Token secreto para verificar webhook
-const API_URL        = `https://graph.facebook.com/v19.0/${PHONE_ID}/messages`;
+const API_URL        = `https://graph.facebook.com/v22.0/${PHONE_ID}/messages`;
 
 // ── Estado conversacional por usuario (en memoria) ────────────────────
 // Formato: { "521234567890": { paso: "nombre", datos: { nombre, empresa, email, servicio } } }
