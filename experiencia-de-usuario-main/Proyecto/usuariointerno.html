@@ -1728,80 +1728,64 @@ function imprimirCotizacion(id) {
   const c = todasCotizaciones.find(x => x.id === id);
   if (!c) return;
 
-  const filas = (c.servicios || []).map(s => `
-    <tr>
-      <td>${s.nombre}</td>
-      <td style="text-align:center">${s.cantidad} ${s.unidad}</td>
-      <td style="text-align:right">${fmt(s.precio_unitario)}</td>
-      <td style="text-align:right"><strong>${fmt(s.subtotal)}</strong></td>
-    </tr>`).join('');
+  // Construir filas con concatenación para evitar conflictos con template literals anidados
+  let filas = '';
+  (c.servicios || []).forEach(function(s) {
+    filas += '<tr>' +
+      '<td>' + s.nombre + '</td>' +
+      '<td style="text-align:center">' + s.cantidad + ' ' + s.unidad + '</td>' +
+      '<td style="text-align:right">' + fmt(s.precio_unitario) + '</td>' +
+      '<td style="text-align:right"><strong>' + fmt(s.subtotal) + '</strong></td>' +
+      '</tr>';
+  });
 
-  const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Cotización ${c.numero || ''}</title>
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; color: #1e293b; margin: 40px; }
-    h1   { color: #4f46e5; font-size: 22px; margin-bottom: 4px; }
-    .sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
-    .field label { font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .06em; color: #94a3b8; display: block; margin-bottom: 2px; }
-    .field span  { font-size: 14px; font-weight: 600; color: #1e293b; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-    th { background: #f1f5f9; padding: 10px 14px; font-size: 11px;
-      text-transform: uppercase; letter-spacing: .05em; text-align: left; }
-    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-    .total-row td { font-size: 16px; font-weight: 800; color: #4f46e5;
-      border-top: 2px solid #e2e8f0; }
-    .footer { margin-top: 32px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;
-      padding-top: 14px; }
-    @media print { body { margin: 20px; } }
-  </style>
-</head>
-<body>
-  <h1>🤟 Mis Manos Hablarán</h1>
-  <p class="sub">Servicios de Lengua de Señas Mexicana · lenguajeDeSeñasMx@gmail.com</p>
+  const duracionHtml = c.duracion
+    ? '<div class="field"><label>Duración</label><span>' + c.duracion + '</span></div>' : '';
+  const notasHtml = c.notas
+    ? '<div style="background:#f8fafc;border-radius:8px;padding:14px 18px;margin-bottom:24px;">' +
+      '<label style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Notas</label>' +
+      '<p style="font-size:13px;margin-top:4px;color:#475569;">' + c.notas + '</p></div>' : '';
 
-  <div class="grid">
-    <div class="field"><label>Número de cotización</label><span>${c.numero || '—'}</span></div>
-    <div class="field"><label>Cliente</label><span>${c.cliente_nombre || '—'}</span></div>
-    <div class="field"><label>Modalidad</label><span>${c.modalidad || '—'}</span></div>
-    <div class="field"><label>Fecha de servicio</label><span>${c.fecha_servicio || '—'}</span></div>
-    ${c.duracion ? `<div class="field"><label>Duración</label><span>${c.duracion}</span></div>` : ''}
-    <div class="field"><label>Estado</label><span>${c.estado || 'borrador'}</span></div>
-  </div>
-
-  ${c.notas ? `<div style="background:#f8fafc;border-radius:8px;padding:14px 18px;margin-bottom:24px;">
-    <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;">Notas</label>
-    <p style="font-size:13px;margin-top:4px;color:#475569;">${c.notas}</p>
-  </div>` : ''}
-
-  <h2 style="font-size:15px;font-weight:700;margin-bottom:12px;">Servicios cotizados</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Servicio</th><th style="text-align:center">Cantidad</th>
-        <th style="text-align:right">Precio unitario</th><th style="text-align:right">Subtotal</th>
-      </tr>
-    </thead>
-    <tbody>${filas}</tbody>
-    <tfoot>
-      <tr class="total-row">
-        <td colspan="3" style="text-align:right">Total estimado:</td>
-        <td style="text-align:right">${fmt(c.total)}</td>
-      </tr>
-    </tfoot>
-  </table>
-  <p style="font-size:11px;color:#94a3b8;">* Precios en MXN · IVA no incluido</p>
-
-  <div class="footer">
-    Mis Manos Hablarán · lenguajeDeSeñasMx@gmail.com · (222) 862-2800
-  </div>
-  <script>window.onload = () => { window.print(); }<\/script>
-</body>
-</html>`;
+  const html =
+    '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+    '<title>Cotizacion ' + (c.numero || '') + '</title>' +
+    '<style>' +
+    'body{font-family:Segoe UI,sans-serif;color:#1e293b;margin:40px}' +
+    'h1{color:#4f46e5;font-size:22px;margin-bottom:4px}' +
+    '.sub{color:#64748b;font-size:13px;margin-bottom:28px}' +
+    '.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}' +
+    '.field label{font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;display:block;margin-bottom:2px}' +
+    '.field span{font-size:14px;font-weight:600;color:#1e293b}' +
+    'table{width:100%;border-collapse:collapse;margin-bottom:16px}' +
+    'th{background:#f1f5f9;padding:10px 14px;font-size:11px;text-transform:uppercase;text-align:left}' +
+    'td{padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px}' +
+    '.total-row td{font-size:16px;font-weight:800;color:#4f46e5;border-top:2px solid #e2e8f0}' +
+    '.footer{margin-top:32px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:14px}' +
+    '@media print{body{margin:20px}}' +
+    '</style></head><body>' +
+    '<h1>Mis Manos Hablaran</h1>' +
+    '<p class="sub">Servicios de Lengua de Senas Mexicana - lenguajeDeSeñasMx@gmail.com</p>' +
+    '<div class="grid">' +
+    '<div class="field"><label>Numero de cotizacion</label><span>' + (c.numero || '—') + '</span></div>' +
+    '<div class="field"><label>Cliente</label><span>' + (c.cliente_nombre || '—') + '</span></div>' +
+    '<div class="field"><label>Modalidad</label><span>' + (c.modalidad || '—') + '</span></div>' +
+    '<div class="field"><label>Fecha de servicio</label><span>' + (c.fecha_servicio || '—') + '</span></div>' +
+    duracionHtml +
+    '<div class="field"><label>Estado</label><span>' + (c.estado || 'borrador') + '</span></div>' +
+    '</div>' +
+    notasHtml +
+    '<h2 style="font-size:15px;font-weight:700;margin-bottom:12px;">Servicios cotizados</h2>' +
+    '<table><thead><tr>' +
+    '<th>Servicio</th><th style="text-align:center">Cantidad</th>' +
+    '<th style="text-align:right">Precio unitario</th><th style="text-align:right">Subtotal</th>' +
+    '</tr></thead><tbody>' + filas + '</tbody>' +
+    '<tfoot><tr class="total-row">' +
+    '<td colspan="3" style="text-align:right">Total estimado:</td>' +
+    '<td style="text-align:right">' + fmt(c.total) + '</td>' +
+    '</tr></tfoot></table>' +
+    '<p style="font-size:11px;color:#94a3b8;">* Precios en MXN - IVA no incluido</p>' +
+    '<div class="footer">Mis Manos Hablaran - lenguajeDeSeñasMx@gmail.com - (222) 862-2800</div>' +
+    '</body></html>';
 
   const win = window.open('', '_blank');
   win.document.write(html);
