@@ -6,6 +6,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'Proyecto')));
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Proyecto', 'landing_accesibilidad.html'));
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'Proyecto', 'index.html'));
 });
