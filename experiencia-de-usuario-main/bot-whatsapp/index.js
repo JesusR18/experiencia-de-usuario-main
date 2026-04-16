@@ -57,21 +57,28 @@ async function enviarMensaje(to, body) {
 
 async function enviarBotones(to, bodyText, botones) {
   // botones: [{ id: 'btn_id', title: 'Texto del botón' }, ...]  (máx 3)
-  await axios.post(API_URL, {
-    messaging_product: 'whatsapp',
-    to,
-    type: 'interactive',
-    interactive: {
-      type: 'button',
-      body: { text: bodyText },
-      action: {
-        buttons: botones.map(b => ({
-          type:  'reply',
-          reply: { id: b.id, title: b.title }
-        }))
+  // Títulos: sin emojis, máx 20 caracteres (restricción de Meta API)
+  try {
+    await axios.post(API_URL, {
+      messaging_product: 'whatsapp',
+      to,
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        body: { text: bodyText },
+        action: {
+          buttons: botones.map(b => ({
+            type:  'reply',
+            reply: { id: b.id, title: b.title.substring(0, 20) }
+          }))
+        }
       }
-    }
-  }, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    }, { headers: { Authorization: `Bearer ${TOKEN}` } });
+  } catch (err) {
+    const meta = err.response?.data;
+    console.error('Error Meta API (botones):', JSON.stringify(meta || err.message));
+    throw err;
+  }
 }
 
 async function enviarLista(to, bodyText, titulo, filas) {
@@ -119,9 +126,9 @@ async function manejarMensaje(telefono, texto, idBoton) {
       '🤟 Somos especialistas en servicios de *Lengua de Señas Mexicana* para empresas, medios e instituciones.\n\n' +
       '¿En qué te puedo ayudar hoy?',
       [
-        { id: 'btn_cotizar',  title: '💰 Quiero cotizar'   },
-        { id: 'btn_info',     title: 'ℹ️ Más información'  },
-        { id: 'btn_contacto', title: '📞 Hablar con alguien'}
+        { id: 'btn_cotizar',  title: 'Quiero cotizar'   },
+        { id: 'btn_info',     title: 'Mas informacion'  },
+        { id: 'btn_contacto', title: 'Hablar con alguien'}
       ]
     );
     return;
@@ -176,9 +183,9 @@ async function manejarMensaje(telefono, texto, idBoton) {
         telefono,
         'Por favor elige una de las opciones:',
         [
-          { id: 'btn_cotizar',  title: '💰 Quiero cotizar'   },
-          { id: 'btn_info',     title: 'ℹ️ Más información'  },
-          { id: 'btn_contacto', title: '📞 Hablar con alguien'}
+          { id: 'btn_cotizar',  title: 'Quiero cotizar'    },
+          { id: 'btn_info',     title: 'Mas informacion'   },
+          { id: 'btn_contacto', title: 'Hablar con alguien'}
         ]
       );
     }
@@ -256,8 +263,8 @@ async function manejarMensaje(telefono, texto, idBoton) {
       `🤟 Servicio: ${s.datos.servicio}\n\n` +
       `¿Los datos son correctos?`,
       [
-        { id: 'btn_confirmar', title: '✅ Confirmar'    },
-        { id: 'btn_cancelar',  title: '✏️ Corregir'    }
+        { id: 'btn_confirmar', title: 'Confirmar'    },
+        { id: 'btn_cancelar',  title: 'Corregir'    }
       ]
     );
     return;
