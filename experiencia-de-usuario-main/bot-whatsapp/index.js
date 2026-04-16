@@ -373,27 +373,44 @@ app.get('/', (req, res) => {
 
 // ── Diagnóstico: verifica token y número ──────────────────────────────
 app.get('/debug', async (req, res) => {
+  const headers = { Authorization: `Bearer ${TOKEN}` };
+  const results = {};
+
+  // 1. Verificar phone number
   try {
-    // 1. Verificar token
-    const tokenCheck = await axios.get(
-      `https://graph.facebook.com/v22.0/me?access_token=${TOKEN}`
+    const r = await axios.get(
+      `https://graph.facebook.com/v22.0/${PHONE_ID}?fields=id,display_phone_number,verified_name`,
+      { headers }
     );
-    // 2. Verificar phone number ID
-    const phoneCheck = await axios.get(
-      `https://graph.facebook.com/v22.0/${PHONE_ID}`,
-      { headers: { Authorization: `Bearer ${TOKEN}` } }
-    );
-    res.json({
-      token_ok: true,
-      token_info: tokenCheck.data,
-      phone_info: phoneCheck.data
-    });
-  } catch (err) {
-    res.json({
-      token_ok: false,
-      error: err.response?.data || err.message
-    });
+    results.phone = r.data;
+  } catch (e) {
+    results.phone_error = e.response?.data || e.message;
   }
+
+  // 2. Verificar WABA
+  try {
+    const r = await axios.get(
+      `https://graph.facebook.com/v22.0/770636360625370?fields=id,name`,
+      { headers }
+    );
+    results.waba = r.data;
+  } catch (e) {
+    results.waba_error = e.response?.data || e.message;
+  }
+
+  // 3. Intentar enviar mensaje de prueba simple
+  try {
+    const r = await axios.post(
+      `https://graph.facebook.com/v22.0/${PHONE_ID}/messages`,
+      { messaging_product: 'whatsapp', to: '5212228622800', type: 'text', text: { body: 'test' } },
+      { headers }
+    );
+    results.send_test = r.data;
+  } catch (e) {
+    results.send_error = e.response?.data || e.message;
+  }
+
+  res.json(results);
 });
 
 // ══════════════════════════════════════════════════════════════════════
