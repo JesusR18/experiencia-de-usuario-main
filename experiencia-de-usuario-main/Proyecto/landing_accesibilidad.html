@@ -460,6 +460,78 @@ footer {
 .modal-close:hover { background: var(--gray-200); }
 .modal-box { position: relative; }
 
+/* ── REDES SOCIALES ──────────────────────────────────────── */
+#redes-sociales { padding: 96px 0; background: var(--gray-50); }
+.redes-header { text-align: center; margin-bottom: 52px; }
+.redes-header .section-sub { margin: 0 auto; }
+.redes-cards {
+  display: flex; gap: 28px; justify-content: center; flex-wrap: wrap;
+  margin-top: 48px;
+}
+.red-card {
+  display: flex; flex-direction: column; align-items: center;
+  width: 260px; padding: 40px 28px; border-radius: 20px;
+  text-decoration: none; transition: all .25s;
+  border: 2px solid transparent;
+  position: relative; overflow: hidden;
+}
+.red-card::before {
+  content: ''; position: absolute; inset: 0;
+  opacity: 0; transition: opacity .25s;
+}
+.red-card:hover { transform: translateY(-6px); }
+.red-card:hover::before { opacity: 1; }
+
+.red-card--tiktok {
+  background: #fff; border-color: #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0,0,0,.07);
+}
+.red-card--tiktok:hover {
+  border-color: #010101; box-shadow: 0 12px 40px rgba(1,1,1,.15);
+}
+.red-card--instagram {
+  background: #fff; border-color: #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0,0,0,.07);
+}
+.red-card--instagram:hover {
+  border-color: #e1306c; box-shadow: 0 12px 40px rgba(225,48,108,.2);
+}
+
+.red-icon {
+  width: 72px; height: 72px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; flex-shrink: 0;
+}
+.red-icon svg { width: 38px; height: 38px; }
+.red-card--tiktok .red-icon { background: #010101; }
+.red-card--tiktok .red-icon svg { fill: #fff; }
+.red-card--instagram .red-icon {
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+.red-card--instagram .red-icon svg { fill: #fff; }
+
+.red-name { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+.red-handle { font-size: 14px; color: var(--gray-600); margin-bottom: 20px; }
+.red-cta {
+  font-size: 13px; font-weight: 700; padding: 9px 22px;
+  border-radius: 8px; transition: all .2s;
+}
+.red-card--tiktok .red-cta {
+  background: #010101; color: #fff;
+}
+.red-card--tiktok:hover .red-cta { background: #333; }
+.red-card--instagram .red-cta {
+  background: linear-gradient(135deg, #f09433, #dc2743, #bc1888);
+  color: #fff;
+}
+.red-card--instagram:hover .red-cta { opacity: .9; }
+
+@media(max-width:600px) {
+  .redes-cards { flex-direction: column; align-items: center; }
+  .red-card { width: 100%; max-width: 320px; }
+  #redes-sociales { padding: 60px 0; }
+}
+
 /* ── SCROLL FADE ─────────────────────────────────────────── */
 .fade-in { opacity: 0; transform: translateY(20px); transition: opacity .6s, transform .6s; }
 .fade-in.visible { opacity: 1; transform: translateY(0); }
@@ -569,6 +641,7 @@ footer {
         <a href="#sectores">Sectores</a>
         <a href="#como-funciona">¿Cómo funciona?</a>
         <a href="#contacto">Contacto</a>
+        <a href="#redes-sociales">Redes</a>
       </div>
       <div class="nav-cta">
         <a href="#quiero-aprender" class="btn btn-amber">Quiero empezar →</a>
@@ -583,6 +656,7 @@ footer {
     <a href="#sectores"      onclick="closeMobileMenu()">Sectores</a>
     <a href="#como-funciona" onclick="closeMobileMenu()">¿Cómo funciona?</a>
     <a href="#contacto"      onclick="closeMobileMenu()">Contacto</a>
+    <a href="#redes-sociales" onclick="closeMobileMenu()">Redes sociales</a>
     <div class="nav-mobile-cta">
       <a href="#quiero-aprender" class="btn btn-amber" onclick="closeMobileMenu()">Quiero empezar →</a>
     </div>
@@ -848,6 +922,45 @@ footer {
 </section>
 
 
+<!-- ═══ REDES SOCIALES ═══ -->
+<section id="redes-sociales">
+  <div class="container">
+    <div class="redes-header fade-in">
+      <span class="section-tag">Síguenos</span>
+      <h2 class="section-title">Conoce nuestras redes</h2>
+      <p class="section-sub">
+        Contenido sobre Lengua de Señas Mexicana, tips, videos y mucho más.
+        ¡Únete a nuestra comunidad en redes sociales!
+      </p>
+    </div>
+    <div class="redes-cards">
+      <a href="https://www.tiktok.com/@lenguaje_de_seniasmx?_r=1&_t=ZS-95jtrYlvSj3"
+        target="_blank" rel="noopener noreferrer" class="red-card red-card--tiktok fade-in">
+        <div class="red-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.7a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/>
+          </svg>
+        </div>
+        <div class="red-name">TikTok</div>
+        <div class="red-handle">@lenguaje_de_seniasmx</div>
+        <div class="red-cta">Seguir →</div>
+      </a>
+      <a href="https://www.instagram.com/lsmmxutp?igsh=cG1kZXdzYjZnYW5x&utm_source=qr"
+        target="_blank" rel="noopener noreferrer" class="red-card red-card--instagram fade-in">
+        <div class="red-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+        </div>
+        <div class="red-name">Instagram</div>
+        <div class="red-handle">@lsmmxutp</div>
+        <div class="red-cta">Seguir →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+
 <!-- ═══ CONTACTO ═══ -->
 <section id="contacto">
   <div class="container">
@@ -965,6 +1078,7 @@ footer {
         <a href="#sectores">Sectores</a>
         <a href="#como-funciona">Proceso</a>
         <a href="#contacto">Contacto</a>
+        <a href="#redes-sociales">Redes</a>
         <a href="index.html">Plataforma</a>
       </div>
     </div>
